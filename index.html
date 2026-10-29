@@ -37,7 +37,7 @@
       -webkit-touch-callout: none;
     }
     button, input { font: inherit; color: inherit; touch-action: manipulation; }
-    .channel-card, .nav-btn, .player-action, .p-ctrl, .player-back, .header-icon-btn, .modal-btn { -webkit-user-select: none; user-select: none; }
+    .channel-card, .chip, .nav-btn, .player-action, .p-ctrl, .player-back { -webkit-user-select: none; user-select: none; }
     #app { height: var(--app-height); display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
     #app-header {
@@ -46,24 +46,13 @@
       -webkit-backdrop-filter: blur(20px); z-index: 10;
       border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-    .brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
-    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 8px; }
     .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gradient); box-shadow: 0 0 12px rgba(139,92,246,0.6); animation: pulse 2s infinite; flex-shrink: 0; }
     @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.85); } }
     .brand h1 { margin: 0; font-size: clamp(16px, 4.8vw, 18px); font-weight: 700; letter-spacing: -0.02em; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; white-space: nowrap; }
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .live-indicator { display: flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(239,68,68,0.15); border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--danger); letter-spacing: 0.05em; flex-shrink: 0; }
     .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); animation: pulse 1.5s infinite; }
-    .header-icon-btn {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--surface-2); border: 1px solid var(--border);
-      color: var(--text); cursor: pointer; display: flex;
-      align-items: center; justify-content: center;
-      font-size: 14px; padding: 0; flex-shrink: 0;
-      transition: transform 0.15s, background 0.2s;
-    }
-    .header-icon-btn:active { transform: scale(0.9); background: var(--surface-3); }
-
     .search-wrap { position: relative; display: flex; align-items: center; }
     .search-icon { position: absolute; left: 14px; width: 18px; height: 18px; color: var(--text-2); pointer-events: none; }
     #search { width: 100%; padding: 12px 44px 12px 42px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 100px; color: var(--text); font-size: 16px; outline: none; transition: all 0.2s; }
@@ -72,10 +61,17 @@
     #clear-search { position: absolute; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-3); border: none; color: var(--text-2); cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 16px; line-height: 1; }
     #clear-search.visible { display: flex; }
 
+    #category-chips { display: flex; gap: 8px; padding: 12px var(--pad-x); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; flex-shrink: 0; overscroll-behavior-x: contain; }
+    #category-chips::-webkit-scrollbar { display: none; }
+    .chip { padding: 8px 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 100px; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; }
+    .chip.active { background: var(--gradient); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+    .chip:active { transform: scale(0.95); }
+
     #content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-    #stats-line { padding: 12px var(--pad-x) 0; font-size: 13px; color: var(--text-2); }
+    #stats-line { padding: 8px var(--pad-x) 0; font-size: 13px; color: var(--text-2); }
     #stats-line strong { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
 
+    /* Griglia auto-responsive: si adatta da sola a qualsiasi larghezza */
     #channel-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(160px, 42vw), 1fr));
@@ -140,6 +136,7 @@
     #player-modal { position: fixed; inset: 0; width: 100vw; height: var(--app-height); background: #000; z-index: 200; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.42s cubic-bezier(0.32,0.72,0,1); will-change: transform; }
     #player-modal.open { transform: translateY(0); }
 
+    /* Pulsante Indietro flottante - SEMPRE VISIBILE */
     .player-back {
       position: absolute;
       top: calc(12px + var(--safe-top));
@@ -189,31 +186,23 @@
     #unmute-overlay.visible { display: flex; }
     #unmute-overlay .unmute-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--gradient); display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; box-shadow: 0 8px 32px rgba(139,92,246,0.5); animation: pulse 2s infinite; }
 
-    #backup-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 400; display: none; align-items: center; justify-content: center; padding: 24px; }
-    #backup-modal.visible { display: flex; }
-    .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-    .modal-card h3 { margin: 0 0 6px; font-size: 16px; color: var(--text); }
-    .modal-card .modal-sub { margin: 0 0 18px; font-size: 12px; color: var(--text-2); line-height: 1.4; }
-    .modal-btn { display: block; width: 100%; padding: 14px 16px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; transition: background 0.2s, transform 0.15s; }
-    .modal-btn:active { background: var(--surface-3); transform: scale(0.97); }
-    .modal-btn.cancel { background: transparent; border-color: transparent; color: var(--text-2); margin-bottom: 0; }
-    .modal-status { font-size: 11px; color: var(--success); margin-top: 12px; min-height: 14px; }
-
-    #toast { position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 20px); left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; background: rgba(30,30,45,0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; color: var(--text); font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; z-index: 500; display: flex; align-items: center; gap: 8px; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); max-width: calc(100vw - 32px); }
+    #toast { position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 20px); left: 50%; transform: translateX(-50%) translateY(20px); padding: 12px 20px; background: rgba(30,30,45,0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; color: var(--text); font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; z-index: 300; display: flex; align-items: center; gap: 8px; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); max-width: calc(100vw - 32px); }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #toast.star-toast { color: var(--star); }
 
     #content::-webkit-scrollbar { width: 4px; }
     #content::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
 
+    /* Schermi molto piccoli: compatta tutto automaticamente */
     @media (max-width: 360px) {
       :root { --nav-h: 64px; }
       #app-header { padding: calc(8px + var(--safe-top)) var(--pad-x) 8px; }
-      .brand-row { margin-bottom: 8px; gap: 6px; }
+      .brand-row { margin-bottom: 8px; }
       .brand h1 { font-size: 15px; }
       .live-indicator { padding: 3px 8px; font-size: 10px; }
-      .header-icon-btn { width: 28px; height: 28px; font-size: 12px; }
       #search { padding: 10px 40px 10px 38px; font-size: 15px; }
+      #category-chips { padding: 8px var(--pad-x); gap: 6px; }
+      .chip { padding: 7px 12px; font-size: 12px; }
       .card-info { padding: 8px 10px 10px; }
       .card-name { font-size: 12px; }
       .card-category { font-size: 10px; }
@@ -225,7 +214,8 @@
 
     @media (min-width: 900px) {
       #app-header { padding: calc(16px + var(--safe-top)) 24px 16px; }
-      #stats-line { padding: 12px 24px 0; }
+      #category-chips { padding: 12px 24px; }
+      #stats-line { padding: 8px 24px 0; }
     }
   </style>
 </head>
@@ -235,17 +225,16 @@
     <header id="app-header">
       <div class="brand-row">
         <div class="brand"><span class="brand-dot"></span><h1>TV LIVE</h1></div>
-        <div class="header-actions">
-          <div class="live-indicator"><span class="live-dot"></span><span>IN DIRETTA</span></div>
-          <button class="header-icon-btn" id="backup-btn" aria-label="Backup preferiti" title="Backup preferiti">💾</button>
-        </div>
+        <div class="live-indicator"><span class="live-dot"></span><span>IN DIRETTA</span></div>
       </div>
       <div class="search-wrap">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="search" id="search" placeholder="Cerca canale…" autocomplete="off" inputmode="search" enterkeyhint="search">
+        <input type="search" id="search" placeholder="Cerca canale o categoria…" autocomplete="off" inputmode="search" enterkeyhint="search">
         <button id="clear-search" aria-label="Cancella">×</button>
       </div>
     </header>
+
+    <div id="category-chips"><button class="chip active" data-cat="">Tutti</button></div>
 
     <main id="content">
       <div id="stats-line">Caricamento…</div>
@@ -266,6 +255,7 @@
     </nav>
 
     <div id="player-modal" role="dialog" aria-modal="true">
+      <!-- Pulsante Indietro SEMPRE VISIBILE -->
       <button class="player-back" id="player-back" aria-label="Indietro">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polyline points="15 18 9 12 15 6"></polyline></svg>
       </button>
@@ -289,18 +279,6 @@
         <button class="p-ctrl" id="p-fs">⤢ Schermo</button>
       </div>
     </div>
-
-    <div id="backup-modal" role="dialog" aria-modal="true">
-      <div class="modal-card">
-        <h3>💾 Backup preferiti</h3>
-        <p class="modal-sub">Salva i tuoi preferiti su file o ripristinali da un backup.</p>
-        <button class="modal-btn" id="export-btn">📤 Esporta su file</button>
-        <button class="modal-btn" id="import-btn">📥 Importa da file</button>
-        <button class="modal-btn cancel" id="cancel-backup">Annulla</button>
-        <div class="modal-status" id="backup-status"></div>
-      </div>
-    </div>
-    <input type="file" id="import-file" accept=".json,application/json" style="display:none">
 
     <div id="toast"></div>
   </div>
@@ -330,7 +308,6 @@
     var IS_TG_BROWSER = /Telegram/i.test(UA);
     var IS_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var IS_ANDROID = /Android/i.test(UA);
-    var HAS_CLOUD_STORAGE = !!(IS_TG_MINI && tg.CloudStorage);
 
     function updateAppHeight() {
       var vv = window.visualViewport;
@@ -357,10 +334,12 @@
       try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
     }
 
-    // Playlist verificate: rimosse le 3 rotte (forgejo, IPTVRU2026 inesistente, Free-TV test stream)
     var PLAYLISTS = [
       'https://iptv-org.github.io/iptv/index.m3u',
       'https://iptv-org.github.io/iptv/channels/it.m3u',
+      'https://forgejo.it/peppenamir/iptv_italia/raw/branch/main/lista.m3u',
+      'https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8',
+      'https://raw.githubusercontent.com/IPTVRU2026/IPTVMIR/main/IPTV_MEGA_PLAYLIST.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/plutotv_all.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/plutotv_it.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/samsungtvplus_all.m3u',
@@ -371,13 +350,6 @@
     var FETCH_TIMEOUT = 15000;
     var BATCH_SIZE = 60;
     var FAVORITES_KEY = 'iptv_favorites_v1';
-
-    var CLOUD_KEY_PREFIX = 'tvlive_fav_';
-    var CLOUD_KEY_COUNT = 'tvlive_fav_n';
-    var CLOUD_KEY_LEGACY = 'tv_live_favorites_v1';
-    var CLOUD_CHUNK_SIZE = 4000;
-    var cloudChunkCount = 0;
-
     var PLACEHOLDER_LOGO = 'data:image/svg+xml,' + encodeURIComponent(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="#2a2a3d"/><text x="30" y="36" text-anchor="middle" fill="#8b8b9e" font-size="14" font-family="sans-serif" font-weight="bold">TV</text></svg>'
     );
@@ -386,6 +358,7 @@
     var filteredChannels = [];
     var favorites = {};
     var currentMode = 'all';
+    var currentCategory = '';
     var currentQuery = '';
     var displayedCount = 0;
     var hls = null;
@@ -404,6 +377,7 @@
     var statsLineEl = $('stats-line');
     var searchInput = $('search');
     var clearSearchBtn = $('clear-search');
+    var categoryChipsEl = $('category-chips');
     var favBadgeEl = $('fav-badge');
     var playerModal = $('player-modal');
     var videoEl = $('video');
@@ -415,10 +389,6 @@
     var playerStatusEl = $('player-status');
     var unmuteOverlay = $('unmute-overlay');
     var toastEl = $('toast');
-    var backupModal = $('backup-modal');
-    var backupBtn = $('backup-btn');
-    var importFileInput = $('import-file');
-    var backupStatusEl = $('backup-status');
 
     function normalize(s) {
       if (!s) return '';
@@ -439,10 +409,7 @@
       toastTimeout = setTimeout(function () { toastEl.classList.remove('show'); }, 2500);
     }
 
-    // ============================================================
-    // PREFERITI: localStorage + Telegram CloudStorage (chunked) + file
-    // ============================================================
-    function loadFavoritesFromLocal() {
+    function loadFavorites() {
       try {
         var raw = localStorage.getItem(FAVORITES_KEY);
         if (raw) {
@@ -453,223 +420,16 @@
         }
       } catch (e) { console.warn('Favorites load:', e); }
     }
-
-    function persistLocal() {
+    function saveFavorites() {
       try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(Object.keys(favorites))); }
       catch (e) { console.warn('Favorites save:', e); }
     }
-
-    function persistCloud(callback) {
-      if (!HAS_CLOUD_STORAGE) { if (callback) callback(); return; }
-      try {
-        var json = JSON.stringify(Object.keys(favorites));
-        var chunks = [];
-        for (var i = 0; i < json.length; i += CLOUD_CHUNK_SIZE) {
-          chunks.push(json.substring(i, i + CLOUD_CHUNK_SIZE));
-        }
-        if (chunks.length === 0) chunks.push('[]');
-
-        var toSet = {};
-        toSet[CLOUD_KEY_COUNT] = String(chunks.length);
-        for (var j = 0; j < chunks.length; j++) {
-          toSet[CLOUD_KEY_PREFIX + j] = chunks[j];
-        }
-
-        tg.CloudStorage.setItems(toSet, function (err) {
-          if (err) {
-            console.warn('Cloud save error:', err);
-            showToast('⚠️ Salvataggio cloud fallito');
-            if (callback) callback();
-            return;
-          }
-          if (cloudChunkCount > chunks.length) {
-            var toRemove = [];
-            for (var k = chunks.length; k < cloudChunkCount; k++) {
-              toRemove.push(CLOUD_KEY_PREFIX + k);
-            }
-            if (toRemove.length > 0) {
-              tg.CloudStorage.removeItems(toRemove, function () {});
-            }
-          }
-          cloudChunkCount = chunks.length;
-          if (callback) callback();
-        });
-      } catch (e) {
-        console.warn('Cloud save exception:', e);
-        showToast('⚠️ Errore salvataggio cloud');
-        if (callback) callback();
-      }
-    }
-
-    function mergeCloudIntoLocal() {
-      if (!HAS_CLOUD_STORAGE) {
-        if (IS_TG_MINI) {
-          console.warn('In Telegram ma CloudStorage non disponibile. Apri come Mini App vera (menu bot).');
-        }
-        return;
-      }
-      try {
-        tg.CloudStorage.getItem(CLOUD_KEY_COUNT, function (err, countStr) {
-          if (err) { console.warn('Cloud count error:', err); return; }
-          var count = Number(countStr) || 0;
-
-          if (count === 0) {
-            tg.CloudStorage.getItem(CLOUD_KEY_LEGACY, function (err2, legacyVal) {
-              if (!err2 && legacyVal) {
-                try {
-                  var arr = JSON.parse(legacyVal);
-                  if (Array.isArray(arr)) {
-                    for (var i = 0; i < arr.length; i++) favorites[arr[i]] = true;
-                    persistLocal();
-                    updateFavBadge();
-                    if (allChannels.length > 0) applyFilters();
-                    persistCloud();
-                    return;
-                  }
-                } catch (e) {}
-              }
-              if (Object.keys(favorites).length > 0) persistCloud();
-            });
-            return;
-          }
-
-          var chunkKeys = [];
-          for (var i = 0; i < count; i++) chunkKeys.push(CLOUD_KEY_PREFIX + i);
-          tg.CloudStorage.getItems(chunkKeys, function (err3, values) {
-            if (err3) { console.warn('Cloud chunks error:', err3); return; }
-            var json = '';
-            for (var j = 0; j < chunkKeys.length; j++) {
-              json += (values[chunkKeys[j]] || '');
-            }
-            try {
-              var arr = JSON.parse(json);
-              var changed = false;
-              if (Array.isArray(arr)) {
-                for (var k = 0; k < arr.length; k++) {
-                  if (typeof arr[k] === 'string' && !favorites[arr[k]]) {
-                    favorites[arr[k]] = true;
-                    changed = true;
-                  }
-                }
-              }
-              cloudChunkCount = count;
-              if (changed) {
-                persistLocal();
-                updateFavBadge();
-                if (allChannels.length > 0) applyFilters();
-              }
-            } catch (e) {
-              console.warn('Cloud parse error:', e);
-            }
-          });
-        });
-      } catch (e) {
-        console.warn('Cloud load exception:', e);
-      }
-    }
-
-    function saveFavorites() {
-      persistLocal();
-      persistCloud();
-    }
-
     function isFav(url) { return !!favorites[url]; }
     function toggleFav(url) {
       if (favorites[url]) { delete favorites[url]; saveFavorites(); return false; }
       favorites[url] = true; saveFavorites(); return true;
     }
 
-    // ============================================================
-    // EXPORT / IMPORT FILE
-    // ============================================================
-    function openBackupModal() {
-      backupStatusEl.textContent = '';
-      backupModal.classList.add('visible');
-      haptic();
-    }
-    function closeBackupModal() {
-      backupModal.classList.remove('visible');
-    }
-
-    function exportFavorites() {
-      var keys = Object.keys(favorites);
-      if (keys.length === 0) {
-        backupStatusEl.textContent = '⚠️ Nessun preferito da esportare';
-        backupStatusEl.style.color = 'var(--danger)';
-        return;
-      }
-      var data = {
-        app: 'TV LIVE',
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        count: keys.length,
-        favorites: keys
-      };
-      try {
-        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'tv-live-preferiti-' + new Date().toISOString().slice(0, 10) + '.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-        backupStatusEl.style.color = 'var(--success)';
-        backupStatusEl.textContent = '✅ File esportato (' + keys.length + ' preferiti)';
-        haptic();
-      } catch (e) {
-        backupStatusEl.style.color = 'var(--danger)';
-        backupStatusEl.textContent = '❌ Esportazione non riuscita';
-      }
-    }
-
-    function triggerImport() {
-      importFileInput.value = '';
-      importFileInput.click();
-    }
-
-    importFileInput.addEventListener('change', function (e) {
-      var file = e.target.files && e.target.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function (ev) {
-        try {
-          var data = JSON.parse(ev.target.result);
-          var arr = data && data.favorites ? data.favorites : data;
-          if (!Array.isArray(arr)) throw new Error('Formato non valido');
-          var added = 0;
-          for (var i = 0; i < arr.length; i++) {
-            if (typeof arr[i] === 'string' && !favorites[arr[i]]) {
-              favorites[arr[i]] = true;
-              added++;
-            }
-          }
-          saveFavorites();
-          updateFavBadge();
-          if (allChannels.length > 0) applyFilters();
-          backupStatusEl.style.color = 'var(--success)';
-          backupStatusEl.textContent = '✅ Importati ' + added + ' nuovi preferiti (totale ' + Object.keys(favorites).length + ')';
-          haptic();
-        } catch (err) {
-          backupStatusEl.style.color = 'var(--danger)';
-          backupStatusEl.textContent = '❌ File non valido';
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    backupBtn.addEventListener('click', openBackupModal);
-    $('cancel-backup').addEventListener('click', closeBackupModal);
-    $('export-btn').addEventListener('click', exportFavorites);
-    $('import-btn').addEventListener('click', triggerImport);
-    backupModal.addEventListener('click', function (e) {
-      if (e.target === backupModal) closeBackupModal();
-    });
-
-    // ============================================================
-    // PARSER M3U
-    // ============================================================
     function parseM3U(text) {
       if (!text) return [];
       var lines = text.split('\n');
@@ -791,15 +551,12 @@
           return;
         }
 
-        // Log silenzioso delle playlist non caricate; avvisa solo se il totale è davvero basso
         var fails = lastLoadLog.filter(function (l) { return !l.ok; });
         if (fails.length > 0) {
-          console.warn('Playlist non caricate:', fails.map(function (f) { return f.url; }));
-        }
-        if (fails.length > 0 && allChannels.length < 100) {
-          showToast('⚠️ Solo ' + allChannels.length + ' canali caricati');
+          showToast('⚠️ ' + fails.length + ' playlist non caricate');
         }
 
+        renderCategories();
         applyFilters();
       }).catch(function (err) {
         console.error('loadPlaylists:', err);
@@ -841,6 +598,47 @@
       if (retry) retry.addEventListener('click', loadPlaylists);
     }
 
+    function renderCategories() {
+      var seenGroups = {};
+      var groups = [];
+      for (var i = 0; i < allChannels.length; i++) {
+        var g = allChannels[i].group;
+        if (!seenGroups[g]) { seenGroups[g] = true; groups.push(g); }
+      }
+      groups.sort();
+
+      categoryChipsEl.innerHTML = '';
+      var allChip = document.createElement('button');
+      allChip.className = 'chip active';
+      allChip.setAttribute('data-cat', '');
+      allChip.textContent = 'Tutti';
+      categoryChipsEl.appendChild(allChip);
+
+      for (var k = 0; k < groups.length; k++) {
+        var chip = document.createElement('button');
+        chip.className = 'chip';
+        chip.setAttribute('data-cat', groups[k]);
+        chip.textContent = groups[k];
+        categoryChipsEl.appendChild(chip);
+      }
+
+      categoryChipsEl.onclick = function (e) {
+        var target = e.target;
+        while (target && target !== categoryChipsEl && !target.classList.contains('chip')) {
+          target = target.parentNode;
+        }
+        if (!target || !target.classList.contains('chip')) return;
+        currentCategory = target.getAttribute('data-cat') || '';
+        var chips = categoryChipsEl.querySelectorAll('.chip');
+        for (var m = 0; m < chips.length; m++) {
+          chips[m].classList.toggle('active', chips[m] === target);
+        }
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch (er) {}
+        haptic();
+        applyFilters();
+      };
+    }
+
     function applyFilters() {
       var source = [];
       if (currentMode === 'favorites') {
@@ -855,6 +653,7 @@
       filteredChannels = [];
       for (var k = 0; k < source.length; k++) {
         var ch = source[k];
+        if (currentCategory && ch.group !== currentCategory) continue;
         if (q && normalize(ch.name).indexOf(q) === -1 && normalize(ch.group).indexOf(q) === -1) continue;
         filteredChannels.push(ch);
       }
@@ -875,7 +674,7 @@
 
     function updateStats() {
       var total = allChannels.length;
-      var filtering = currentQuery || currentMode === 'favorites';
+      var filtering = currentQuery || currentCategory || currentMode === 'favorites';
       if (filtering) {
         statsLineEl.innerHTML = '<strong>' + filteredChannels.length.toLocaleString('it-IT') + '</strong> risultati' +
           (currentMode === 'favorites' ? ' nei preferiti' : ' su ' + total.toLocaleString('it-IT'));
@@ -899,14 +698,14 @@
 
     function renderEmpty() {
       var isFavMode = currentMode === 'favorites';
-      var hasFilter = currentQuery;
-      var icon = '📺', title = 'Nessun canale trovato', sub = 'Prova a modificare la ricerca.';
+      var hasFilter = currentQuery || currentCategory;
+      var icon = '📺', title = 'Nessun canale trovato', sub = 'Prova a modificare i filtri.';
       if (isFavMode && !hasFilter) {
         icon = '⭐'; title = 'Nessun preferito';
         sub = 'Tocca la stella ★ su un canale per aggiungerlo qui.';
       } else if (isFavMode) {
         icon = '🔍'; title = 'Nessun preferito trovato';
-        sub = 'Modifica la ricerca.';
+        sub = 'Modifica la ricerca o il filtro categoria.';
       }
       gridEl.innerHTML = '<div class="empty"><div class="empty-icon">' + icon + '</div><h3>' + title + '</h3><p>' + sub + '</p></div>';
     }
@@ -1057,24 +856,9 @@
 
       try { if (tg && tg.BackButton) tg.BackButton.hide(); } catch (e) {}
 
-      // Esci da fullscreen se attivo
-      try {
-        if (document.fullscreenElement && document.exitFullscreen) {
-          document.exitFullscreen().catch(function () {});
-        } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
-      } catch (e) {}
-
-      // Esci da PiP se attivo
-      try {
-        if (document.pictureInPictureElement && document.exitPictureInPicture) {
-          document.exitPictureInPicture().catch(function () {});
-        }
-        if (videoEl.webkitPresentationMode === 'picture-in-picture') {
-          videoEl.webkitSetPresentationMode('inline');
-        }
-      } catch (e) {}
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(function () {});
+      }
 
       if (!fromHistory && history.state && history.state.modal === 'player') {
         try { history.back(); } catch (e) {}
@@ -1214,116 +998,24 @@
       else if (mode === 'zoom') videoEl.classList.add('fit-zoom');
     }
 
-    // ============================================================
-    // FULLSCREEN — versione robusta multi-piattaforma
-    // ============================================================
     function toggleFullscreen() {
       haptic();
-
-      // 1) iOS / Safari / WKWebView: native video fullscreen (funziona sempre)
-      if (typeof videoEl.webkitEnterFullscreen === 'function' && typeof videoEl.webkitExitFullscreen === 'function') {
-        try {
-          if (videoEl.webkitDisplayingFullscreen) {
-            videoEl.webkitExitFullscreen();
-          } else {
-            videoEl.webkitEnterFullscreen();
-          }
-          return;
-        } catch (e) {
-          console.warn('webkit fullscreen failed:', e);
-        }
+      if (IS_IOS && videoEl.webkitEnterFullscreen) {
+        try { videoEl.webkitEnterFullscreen(); return; } catch (e) {}
       }
-
-      // 2) Standard Fullscreen API
-      var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-
+      var target = $('player-video-wrap');
+      var isFs = document.fullscreenElement || document.webkitFullscreenElement;
       if (isFs) {
-        try {
-          if (document.exitFullscreen) document.exitFullscreen();
-          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-          else if (document.msExitFullscreen) document.msExitFullscreen();
-        } catch (e) {}
+        if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         return;
       }
-
-      // 3) Prova prima sul <video>, poi sul wrap
-      var targets = [videoEl, $('player-video-wrap')];
-      for (var i = 0; i < targets.length; i++) {
-        var t = targets[i];
-        if (!t) continue;
-        try {
-          if (t.requestFullscreen) {
-            var p = t.requestFullscreen();
-            if (p && p.catch) p.catch(function () {});
-            return;
-          }
-          if (t.webkitRequestFullscreen) { t.webkitRequestFullscreen(); return; }
-          if (t.mozRequestFullScreen) { t.mozRequestFullScreen(); return; }
-          if (t.msRequestFullscreen) { t.msRequestFullscreen(); return; }
-        } catch (e) {}
-      }
-
-      showToast('Schermo intero non supportato in questo contesto');
-    }
-
-    // ============================================================
-    // PiP — supporto standard + Safari/iOS
-    // ============================================================
-    function togglePiP() {
-      haptic();
-
-      // Se PiP attivo → esci
-      if (document.pictureInPictureElement) {
-        try {
-          var pexit = document.exitPictureInPicture();
-          if (pexit && pexit.catch) pexit.catch(function () {});
-        } catch (e) {}
-        return;
-      }
-
-      // Safari / iOS: webkitSetPresentationMode
-      if (typeof videoEl.webkitSetPresentationMode === 'function') {
-        try {
-          var mode = videoEl.webkitPresentationMode;
-          if (mode === 'picture-in-picture') {
-            videoEl.webkitSetPresentationMode('inline');
-          } else {
-            videoEl.webkitSetPresentationMode('picture-in-picture');
-          }
-          return;
-        } catch (e) {
-          console.warn('webkit PiP failed:', e);
-        }
-      }
-
-      // Standard API (Chrome/Edge)
-      if (!document.pictureInPictureEnabled) {
-        showToast('Mini schermo non supportato');
-        return;
-      }
-
-      if (videoEl.readyState < 2) {
-        showToast('Attendi il caricamento del video');
-        return;
-      }
-
-      if (videoEl.disablePictureInPicture) {
-        showToast('Mini schermo non disponibile per questo video');
-        return;
-      }
-
-      try {
-        var pp = videoEl.requestPictureInPicture();
-        if (pp && pp.catch) {
-          pp.catch(function (err) {
-            console.warn('PiP error:', err);
-            showToast('Mini schermo non disponibile');
-          });
-        }
-      } catch (e) {
-        console.warn('PiP exception:', e);
-        showToast('Mini schermo non disponibile');
+      if (target.requestFullscreen) {
+        target.requestFullscreen().catch(function () {});
+      } else if (target.webkitRequestFullscreen) {
+        target.webkitRequestFullscreen();
+      } else {
+        showToast('Schermo intero non supportato');
       }
     }
 
@@ -1341,7 +1033,7 @@
     }, { passive: true });
 
     videoEl.addEventListener('touchend', function (e) {
-      if (document.fullscreenElement || videoEl.webkitDisplayingFullscreen) return;
+      if (document.fullscreenElement) return;
       var dy = e.changedTouches[0].clientY - touchStartY;
       var dt = Date.now() - touchStartTime;
       if (dy > 120 && dt < 500) closePlayer();
@@ -1350,7 +1042,6 @@
     if (IS_TG_MINI && tg.BackButton) {
       try {
         tg.BackButton.onClick(function () {
-          if (backupModal.classList.contains('visible')) { closeBackupModal(); return; }
           if (playerModal.classList.contains('open')) closePlayer();
           else tg.close();
         });
@@ -1396,6 +1087,7 @@
       })(navBtns[n]);
     }
 
+    // Pulsante Indietro del player
     playerBackBtn.addEventListener('click', function () { closePlayer(); });
 
     playerStarBtn.addEventListener('click', function () {
@@ -1413,15 +1105,18 @@
       showPlayerControls();
     });
 
-    $('p-pip').addEventListener('click', function () { togglePiP(); showPlayerControls(); });
-    $('p-fs').addEventListener('click', function () { toggleFullscreen(); showPlayerControls(); });
+    $('p-pip').addEventListener('click', function () {
+      try {
+        if (document.pictureInPictureElement) document.exitPictureInPicture();
+        else if (document.pictureInPictureEnabled) videoEl.requestPictureInPicture();
+        else showToast('Mini schermo non supportato');
+      } catch (e) { showToast('Mini schermo non disponibile'); }
+    });
 
-    // ============================================================
-    // INIT
-    // ============================================================
-    loadFavoritesFromLocal();
+    $('p-fs').addEventListener('click', toggleFullscreen);
+
+    loadFavorites();
     updateFavBadge();
-    mergeCloudIntoLocal();
     setupInfiniteScroll();
     loadPlaylists();
   })();

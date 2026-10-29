@@ -189,7 +189,6 @@
     #unmute-overlay.visible { display: flex; }
     #unmute-overlay .unmute-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--gradient); display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; box-shadow: 0 8px 32px rgba(139,92,246,0.5); animation: pulse 2s infinite; }
 
-    /* Modal backup/import preferiti */
     #backup-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 400; display: none; align-items: center; justify-content: center; padding: 24px; }
     #backup-modal.visible { display: flex; }
     .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
@@ -291,7 +290,6 @@
       </div>
     </div>
 
-    <!-- Modal backup/import preferiti -->
     <div id="backup-modal" role="dialog" aria-modal="true">
       <div class="modal-card">
         <h3>💾 Backup preferiti</h3>
@@ -359,12 +357,10 @@
       try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
     }
 
+    // Playlist verificate: rimosse le 3 rotte (forgejo, IPTVRU2026 inesistente, Free-TV test stream)
     var PLAYLISTS = [
       'https://iptv-org.github.io/iptv/index.m3u',
       'https://iptv-org.github.io/iptv/channels/it.m3u',
-      'https://forgejo.it/peppenamir/iptv_italia/raw/branch/main/lista.m3u',
-      'https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8',
-      'https://raw.githubusercontent.com/IPTVRU2026/IPTVMIR/main/IPTV_MEGA_PLAYLIST.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/plutotv_all.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/plutotv_it.m3u',
       'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/samsungtvplus_all.m3u',
@@ -375,7 +371,13 @@
     var FETCH_TIMEOUT = 15000;
     var BATCH_SIZE = 60;
     var FAVORITES_KEY = 'iptv_favorites_v1';
-    var CLOUD_KEY = 'tv_live_favorites_v1';
+
+    var CLOUD_KEY_PREFIX = 'tvlive_fav_';
+    var CLOUD_KEY_COUNT = 'tvlive_fav_n';
+    var CLOUD_KEY_LEGACY = 'tv_live_favorites_v1';
+    var CLOUD_CHUNK_SIZE = 4000;
+    var cloudChunkCount = 0;
+
     var PLACEHOLDER_LOGO = 'data:image/svg+xml,' + encodeURIComponent(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="#2a2a3d"/><text x="30" y="36" text-anchor="middle" fill="#8b8b9e" font-size="14" font-family="sans-serif" font-weight="bold">TV</text></svg>'
     );
@@ -438,7 +440,7 @@
     }
 
     // ============================================================
-    // PREFERITI: localStorage + Telegram CloudStorage + file
+    // PREFERITI: localStorage + Telegram CloudStorage (chunked) + file
     // ============================================================
     function loadFavoritesFromLocal() {
       try {
@@ -460,45 +462,115 @@
     function persistCloud(callback) {
       if (!HAS_CLOUD_STORAGE) { if (callback) callback(); return; }
       try {
-        tg.CloudStorage.setItem(CLOUD_KEY, JSON.stringify(Object.keys(favorites)), function (err) {
-          if (err) console.warn('CloudStorage save:', err);
+        var json = JSON.stringify(Object.keys(favorites));
+        var chunks = [];
+        for (var i = 0; i < json.length; i += CLOUD_CHUNK_SIZE) {
+          chunks.push(json.substring(i, i + CLOUD_CHUNK_SIZE));
+        }
+        if (chunks.length === 0) chunks.push('[]');
+
+        var toSet = {};
+        toSet[CLOUD_KEY_COUNT] = String(chunks.length);
+        for (var j = 0; j < chunks.length; j++) {
+          toSet[CLOUD_KEY_PREFIX + j] = chunks[j];
+        }
+
+        tg.CloudStorage.setItems(toSet, function (err) {
+          if (err) {
+            console.warn('Cloud save error:', err);
+            showToast('⚠️ Salvataggio cloud fallito');
+            if (callback) callback();
+            return;
+          }
+          if (cloudChunkCount > chunks.length) {
+            var toRemove = [];
+            for (var k = chunks.length; k < cloudChunkCount; k++) {
+              toRemove.push(CLOUD_KEY_PREFIX + k);
+            }
+            if (toRemove.length > 0) {
+              tg.CloudStorage.removeItems(toRemove, function () {});
+            }
+          }
+          cloudChunkCount = chunks.length;
           if (callback) callback();
         });
-      } catch (e) { if (callback) callback(); }
+      } catch (e) {
+        console.warn('Cloud save exception:', e);
+        showToast('⚠️ Errore salvataggio cloud');
+        if (callback) callback();
+      }
+    }
+
+    function mergeCloudIntoLocal() {
+      if (!HAS_CLOUD_STORAGE) {
+        if (IS_TG_MINI) {
+          console.warn('In Telegram ma CloudStorage non disponibile. Apri come Mini App vera (menu bot).');
+        }
+        return;
+      }
+      try {
+        tg.CloudStorage.getItem(CLOUD_KEY_COUNT, function (err, countStr) {
+          if (err) { console.warn('Cloud count error:', err); return; }
+          var count = Number(countStr) || 0;
+
+          if (count === 0) {
+            tg.CloudStorage.getItem(CLOUD_KEY_LEGACY, function (err2, legacyVal) {
+              if (!err2 && legacyVal) {
+                try {
+                  var arr = JSON.parse(legacyVal);
+                  if (Array.isArray(arr)) {
+                    for (var i = 0; i < arr.length; i++) favorites[arr[i]] = true;
+                    persistLocal();
+                    updateFavBadge();
+                    if (allChannels.length > 0) applyFilters();
+                    persistCloud();
+                    return;
+                  }
+                } catch (e) {}
+              }
+              if (Object.keys(favorites).length > 0) persistCloud();
+            });
+            return;
+          }
+
+          var chunkKeys = [];
+          for (var i = 0; i < count; i++) chunkKeys.push(CLOUD_KEY_PREFIX + i);
+          tg.CloudStorage.getItems(chunkKeys, function (err3, values) {
+            if (err3) { console.warn('Cloud chunks error:', err3); return; }
+            var json = '';
+            for (var j = 0; j < chunkKeys.length; j++) {
+              json += (values[chunkKeys[j]] || '');
+            }
+            try {
+              var arr = JSON.parse(json);
+              var changed = false;
+              if (Array.isArray(arr)) {
+                for (var k = 0; k < arr.length; k++) {
+                  if (typeof arr[k] === 'string' && !favorites[arr[k]]) {
+                    favorites[arr[k]] = true;
+                    changed = true;
+                  }
+                }
+              }
+              cloudChunkCount = count;
+              if (changed) {
+                persistLocal();
+                updateFavBadge();
+                if (allChannels.length > 0) applyFilters();
+              }
+            } catch (e) {
+              console.warn('Cloud parse error:', e);
+            }
+          });
+        });
+      } catch (e) {
+        console.warn('Cloud load exception:', e);
+      }
     }
 
     function saveFavorites() {
       persistLocal();
       persistCloud();
-    }
-
-    function mergeCloudIntoLocal() {
-      if (!HAS_CLOUD_STORAGE) return;
-      try {
-        tg.CloudStorage.getItem(CLOUD_KEY, function (err, val) {
-          if (err) { console.warn('CloudStorage load:', err); return; }
-          var changed = false;
-          if (val) {
-            try {
-              var arr = JSON.parse(val);
-              if (Array.isArray(arr)) {
-                for (var i = 0; i < arr.length; i++) {
-                  if (!favorites[arr[i]]) { favorites[arr[i]] = true; changed = true; }
-                }
-              }
-            } catch (e) {}
-            if (changed) {
-              persistLocal();
-              updateFavBadge();
-              if (allChannels.length > 0) applyFilters();
-            }
-          } else {
-            // Cloud vuoto: carica i locali sul cloud (prima sincronizzazione)
-            var localKeys = Object.keys(favorites);
-            if (localKeys.length > 0) persistCloud();
-          }
-        });
-      } catch (e) {}
     }
 
     function isFav(url) { return !!favorites[url]; }
@@ -719,9 +791,13 @@
           return;
         }
 
+        // Log silenzioso delle playlist non caricate; avvisa solo se il totale è davvero basso
         var fails = lastLoadLog.filter(function (l) { return !l.ok; });
         if (fails.length > 0) {
-          showToast('⚠️ ' + fails.length + ' playlist non caricate');
+          console.warn('Playlist non caricate:', fails.map(function (f) { return f.url; }));
+        }
+        if (fails.length > 0 && allChannels.length < 100) {
+          showToast('⚠️ Solo ' + allChannels.length + ' canali caricati');
         }
 
         applyFilters();
@@ -981,9 +1057,24 @@
 
       try { if (tg && tg.BackButton) tg.BackButton.hide(); } catch (e) {}
 
-      if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(function () {});
-      }
+      // Esci da fullscreen se attivo
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(function () {});
+        } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } catch (e) {}
+
+      // Esci da PiP se attivo
+      try {
+        if (document.pictureInPictureElement && document.exitPictureInPicture) {
+          document.exitPictureInPicture().catch(function () {});
+        }
+        if (videoEl.webkitPresentationMode === 'picture-in-picture') {
+          videoEl.webkitSetPresentationMode('inline');
+        }
+      } catch (e) {}
 
       if (!fromHistory && history.state && history.state.modal === 'player') {
         try { history.back(); } catch (e) {}
@@ -1123,24 +1214,116 @@
       else if (mode === 'zoom') videoEl.classList.add('fit-zoom');
     }
 
+    // ============================================================
+    // FULLSCREEN — versione robusta multi-piattaforma
+    // ============================================================
     function toggleFullscreen() {
       haptic();
-      if (IS_IOS && videoEl.webkitEnterFullscreen) {
-        try { videoEl.webkitEnterFullscreen(); return; } catch (e) {}
+
+      // 1) iOS / Safari / WKWebView: native video fullscreen (funziona sempre)
+      if (typeof videoEl.webkitEnterFullscreen === 'function' && typeof videoEl.webkitExitFullscreen === 'function') {
+        try {
+          if (videoEl.webkitDisplayingFullscreen) {
+            videoEl.webkitExitFullscreen();
+          } else {
+            videoEl.webkitEnterFullscreen();
+          }
+          return;
+        } catch (e) {
+          console.warn('webkit fullscreen failed:', e);
+        }
       }
-      var target = $('player-video-wrap');
-      var isFs = document.fullscreenElement || document.webkitFullscreenElement;
+
+      // 2) Standard Fullscreen API
+      var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+
       if (isFs) {
-        if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        try {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+          else if (document.msExitFullscreen) document.msExitFullscreen();
+        } catch (e) {}
         return;
       }
-      if (target.requestFullscreen) {
-        target.requestFullscreen().catch(function () {});
-      } else if (target.webkitRequestFullscreen) {
-        target.webkitRequestFullscreen();
-      } else {
-        showToast('Schermo intero non supportato');
+
+      // 3) Prova prima sul <video>, poi sul wrap
+      var targets = [videoEl, $('player-video-wrap')];
+      for (var i = 0; i < targets.length; i++) {
+        var t = targets[i];
+        if (!t) continue;
+        try {
+          if (t.requestFullscreen) {
+            var p = t.requestFullscreen();
+            if (p && p.catch) p.catch(function () {});
+            return;
+          }
+          if (t.webkitRequestFullscreen) { t.webkitRequestFullscreen(); return; }
+          if (t.mozRequestFullScreen) { t.mozRequestFullScreen(); return; }
+          if (t.msRequestFullscreen) { t.msRequestFullscreen(); return; }
+        } catch (e) {}
+      }
+
+      showToast('Schermo intero non supportato in questo contesto');
+    }
+
+    // ============================================================
+    // PiP — supporto standard + Safari/iOS
+    // ============================================================
+    function togglePiP() {
+      haptic();
+
+      // Se PiP attivo → esci
+      if (document.pictureInPictureElement) {
+        try {
+          var pexit = document.exitPictureInPicture();
+          if (pexit && pexit.catch) pexit.catch(function () {});
+        } catch (e) {}
+        return;
+      }
+
+      // Safari / iOS: webkitSetPresentationMode
+      if (typeof videoEl.webkitSetPresentationMode === 'function') {
+        try {
+          var mode = videoEl.webkitPresentationMode;
+          if (mode === 'picture-in-picture') {
+            videoEl.webkitSetPresentationMode('inline');
+          } else {
+            videoEl.webkitSetPresentationMode('picture-in-picture');
+          }
+          return;
+        } catch (e) {
+          console.warn('webkit PiP failed:', e);
+        }
+      }
+
+      // Standard API (Chrome/Edge)
+      if (!document.pictureInPictureEnabled) {
+        showToast('Mini schermo non supportato');
+        return;
+      }
+
+      if (videoEl.readyState < 2) {
+        showToast('Attendi il caricamento del video');
+        return;
+      }
+
+      if (videoEl.disablePictureInPicture) {
+        showToast('Mini schermo non disponibile per questo video');
+        return;
+      }
+
+      try {
+        var pp = videoEl.requestPictureInPicture();
+        if (pp && pp.catch) {
+          pp.catch(function (err) {
+            console.warn('PiP error:', err);
+            showToast('Mini schermo non disponibile');
+          });
+        }
+      } catch (e) {
+        console.warn('PiP exception:', e);
+        showToast('Mini schermo non disponibile');
       }
     }
 
@@ -1158,7 +1341,7 @@
     }, { passive: true });
 
     videoEl.addEventListener('touchend', function (e) {
-      if (document.fullscreenElement) return;
+      if (document.fullscreenElement || videoEl.webkitDisplayingFullscreen) return;
       var dy = e.changedTouches[0].clientY - touchStartY;
       var dt = Date.now() - touchStartTime;
       if (dy > 120 && dt < 500) closePlayer();
@@ -1230,15 +1413,8 @@
       showPlayerControls();
     });
 
-    $('p-pip').addEventListener('click', function () {
-      try {
-        if (document.pictureInPictureElement) document.exitPictureInPicture();
-        else if (document.pictureInPictureEnabled) videoEl.requestPictureInPicture();
-        else showToast('Mini schermo non supportato');
-      } catch (e) { showToast('Mini schermo non disponibile'); }
-    });
-
-    $('p-fs').addEventListener('click', toggleFullscreen);
+    $('p-pip').addEventListener('click', function () { togglePiP(); showPlayerControls(); });
+    $('p-fs').addEventListener('click', function () { toggleFullscreen(); showPlayerControls(); });
 
     // ============================================================
     // INIT

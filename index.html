@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE v18: griglia mobile a 3 colonne con testi più leggibili -->
+<!-- TV LIVE v17: layout fluido per Telegram Android, safe-area reale senza offset fissi -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v18</title>
+<title>TV LIVE v17</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
@@ -152,30 +152,6 @@
   .card-category{font-size:7px!important}
   .card-reorder{margin-top:2px!important;gap:2px!important}
   .move-fav{min-height:16px;padding:2px 1px!important;font-size:7px!important}
-}
-
-
-/* v18 — griglia mobile a 3 colonne, schede e testi più leggibili */
-@media(max-width:649px){
-  #channel-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:8px!important;
-    padding:9px!important;
-  }
-  .card-thumb{aspect-ratio:1.38/1!important;padding:5px!important}
-  .card-logo{max-width:88%!important;max-height:88%!important}
-  .card-badge{top:4px!important;left:4px!important;padding:3px 5px!important;font-size:9px!important;border-radius:6px!important}
-  .card-star{top:4px!important;right:4px!important;width:26px!important;height:26px!important;font-size:15px!important}
-  .card-info{padding:5px 6px 6px!important}
-  .card-name{font-size:12px!important;line-height:1.2!important;font-weight:700!important}
-  .card-category{font-size:10px!important;line-height:1.2!important}
-  .card-reorder{margin-top:4px!important;gap:4px!important}
-  .move-fav{min-height:24px!important;padding:4px 3px!important;font-size:9.5px!important;border-radius:7px!important}
-  .favorites-tools{margin:7px 9px 0!important;padding:8px 9px!important;gap:6px 8px!important}
-  .favorites-tools label{font-size:11px!important}
-  .favorites-tools select{padding:7px 25px 7px 9px!important;font-size:12px!important}
-  #favorites-hint{display:none!important}
-  .skeleton-card{aspect-ratio:1.38/1!important}
 }
 
 </style>

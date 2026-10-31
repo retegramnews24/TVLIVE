@@ -9,7 +9,7 @@
 <title>TV LIVE</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b),var(--tg-content-b),var(--android-nav-fallback));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:62px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
+:root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b),var(--android-nav-fallback));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:62px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
 @supports not(height:100dvh){:root{--app-h:100vh}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{margin:0;width:100%;height:var(--app-h);overflow:hidden;position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;-webkit-touch-callout:none}button,input{font:inherit;color:inherit;touch-action:manipulation}button{cursor:pointer}#app{height:var(--app-h);display:flex;flex-direction:column;position:relative;overflow:hidden}
 /* Intestazione e ricerca */
@@ -82,8 +82,8 @@
   const HAS_CLOUD = !!(IS_TG && tg.CloudStorage);
   const PLAYLISTS = [
     'https://iptv-org.github.io/iptv/index.m3u',
-    'https://iptv-org.github.io/iptv/channels/it.m3u',
-    'https://forgejo.it/peppenamir/iptv_italia/raw/branch/main/lista.m3u',
+    'https://iptv-org.github.io/iptv/countries/it.m3u',
+    'https://raw.githubusercontent.com/peppenamir/iptv_italia/main/lista.m3u',
     'https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8',
     'https://raw.githubusercontent.com/IPTVRU2026/IPTVMIR/main/IPTV_MEGA_PLAYLIST.m3u',
     'https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/main/playlists/plutotv_all.m3u',
@@ -104,8 +104,9 @@
   // Gestisce viewport e aree sicure: evita che la testata finisca sotto i controlli Telegram.
   function updateTelegramInsets(){
     const px=value=>Math.max(0,Number(value)||0)+'px';
-    // Lascia una fascia libera sotto la barra dell'app per i tasti Android.
-    document.documentElement.style.setProperty('--android-nav-fallback',px(IS_ANDROID ? 76 : 0));
+    // Fascia minima per i tasti Android: non usare il contentSafeAreaInset,
+    // che su alcuni WebView Telegram è molto grande e alza troppo la barra.
+    document.documentElement.style.setProperty('--android-nav-fallback',px(IS_ANDROID ? 30 : 0));
     if(!IS_TG) return;
     const safe= tg.safeAreaInset || {};
     const contentSafe= tg.contentSafeAreaInset || {};
@@ -113,9 +114,9 @@
     document.documentElement.style.setProperty('--tg-content-t',px(contentSafe.top));
     document.documentElement.style.setProperty('--tg-safe-b',px(safe.bottom));
     document.documentElement.style.setProperty('--tg-content-b',px(contentSafe.bottom));
-    // In Telegram su Android riserva anche la fascia dei tasti di sistema
-    // (indietro, home e app recenti), se la WebView non espone l'inset.
-    // Il fallback Android è già impostato sopra anche fuori da Telegram.
+    // Usa il safeAreaInset reale di Telegram se disponibile.
+    // Il contentSafeAreaInset.bottom non viene applicato alla barra: può
+    // includere aree di interfaccia non pertinenti e creare spazio vuoto.
 
   }
   function updateHeight(){ const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight || (IS_TG && (tg.viewportHeight || tg.viewportStableHeight)); if(h > 0) document.documentElement.style.setProperty('--app-h', Math.round(h)+'px'); updateTelegramInsets(); }
@@ -144,10 +145,10 @@
   $('backup-btn').addEventListener('click',openBackup);$('cancel-backup').addEventListener('click',closeBackup);$('export-btn').addEventListener('click',exportFavorites);$('import-btn').addEventListener('click',()=>{el.file.value='';el.file.click();});el.file.addEventListener('change',e=>{if(e.target.files?.[0])importFavorites(e.target.files[0]);});el.backup.addEventListener('click',e=>{if(e.target===el.backup)closeBackup();});
 
   // Lettura e parsing delle playlist M3U.
-  function parseM3U(text){const result=[];let current=null;for(const raw of (text||'').split(/\r?\n/)){const line=raw.trim();if(!line)continue;if(line.startsWith('#EXTINF:')){const info=line.slice(8),comma=info.indexOf(','),attrs=comma<0?info:info.slice(0,comma);current={name:comma<0?'Sconosciuto':info.slice(comma+1).trim(),url:'',logo:attrs.match(/tvg-logo="([^"]*)"/)?.[1]||'',group:(attrs.match(/group-title="([^"]*)"/)?.[1]||'Generale').trim()||'Generale'};}else if(line[0]!=='#'&&current){current.url=line;if(current.name)result.push(current);current=null;}}return result;}
+  function parseM3U(text){const result=[];let current=null;for(const raw of (text||'').split(/\r?\n/)){const line=raw.trim();if(!line)continue;if(line.startsWith('#EXTINF:')){const info=line.slice(8),comma=info.indexOf(','),attrs=comma<0?info:info.slice(0,comma);current={name:comma<0?'Sconosciuto':info.slice(comma+1).trim(),url:'',logo:attrs.match(/tvg-logo="([^"]*)"/)?.[1]||'',group:(attrs.match(/(?:group-title|tvg-group)="([^"]*)"/i)?.[1]||'Generale').trim()||'Generale'};}else if(line[0]!=='#'&&current){current.url=line;if(current.name)result.push(current);current=null;}}return result;}
   function loadText(url){return new Promise((resolve,reject)=>{const xhr=new XMLHttpRequest();xhr.open('GET',url,true);xhr.timeout=FETCH_TIMEOUT;xhr.onload=()=>xhr.status>=200&&xhr.status<300?resolve(xhr.responseText||''):reject(Error('HTTP '+xhr.status));xhr.onerror=()=>reject(Error('CORS/rete'));xhr.ontimeout=()=>reject(Error('Timeout'));xhr.onabort=()=>reject(Error('Annullato'));xhr.send();});}
   function skeletons(){el.grid.replaceChildren();for(let i=0;i<8;i++){const item=document.createElement('div');item.className='skeleton skeleton-card';el.grid.appendChild(item);}}
-  async function loadPlaylists(){skeletons();el.stats.textContent='Caricamento playlist…';el.loader.classList.remove('hidden');lastLoadLog=[];const lists=await Promise.all(PLAYLISTS.map(async url=>{try{const text=await loadText(url),items=parseM3U(text);lastLoadLog.push({url,ok:true,count:items.length});return items;}catch(error){lastLoadLog.push({url,ok:false,error:error.message||String(error)});return [];}}));const seen=new Set(),merged=[];lists.flat().forEach(ch=>{const key=ch.url.toLowerCase().split('?')[0].replace(/\/+$/,'');if(!seen.has(key)){seen.add(key);merged.push(ch);}});channels=merged.map((ch,i)=>({...ch,num:i+1}));if(!channels.length){showLoadError();return;}ensureFavoriteOrder();const failed=lastLoadLog.filter(x=>!x.ok).length;if(failed)toast('⚠️ '+failed+' playlist non caricate');applyFilters();}
+  async function loadPlaylists(){skeletons();el.stats.textContent='Caricamento playlist…';el.loader.classList.remove('hidden');lastLoadLog=[];const lists=await Promise.all(PLAYLISTS.map(async url=>{try{const text=await loadText(url),items=parseM3U(text);lastLoadLog.push({url,ok:true,count:items.length});return items;}catch(error){lastLoadLog.push({url,ok:false,error:error.message||String(error)});return [];}}));const seen=new Set(),merged=[];lists.flat().forEach(ch=>{const key=ch.url.toLowerCase().split('?')[0].replace(/\/+$/,'');if(!seen.has(key)){seen.add(key);merged.push(ch);}});channels=merged.map((ch,i)=>({...ch,num:i+1}));if(!channels.length){showLoadError();return;}ensureFavoriteOrder();const failed=lastLoadLog.filter(x=>!x.ok);if(failed.length){const names=failed.map(x=>{try{return new URL(x.url).host;}catch(e){return 'fonte';}});toast('⚠️ '+failed.length+' playlist non caricate: '+names.join(', '));}applyFilters();}
   function showLoadError(){el.grid.replaceChildren();const box=document.createElement('div');box.className='empty';box.innerHTML='<div class="empty-icon">⚠️</div><h3>Impossibile caricare i canali</h3><p>Nessuna playlist ha risposto. Diagnostica:</p>';const diag=document.createElement('div');diag.className='diag';lastLoadLog.forEach(log=>{const row=document.createElement('div');row.className='diag-row '+(log.ok?'ok':'fail');const host=document.createElement('span');host.className='diag-host';host.textContent=new URL(log.url).host;const dot=document.createElement('span');dot.className='diag-dot';dot.textContent=log.ok?'✓':'✕';const msg=document.createElement('span');msg.className='diag-msg';msg.textContent=log.ok?log.count+' canali':log.error;row.append(dot,host,msg);diag.appendChild(row);});const retry=document.createElement('button');retry.className='retry-btn';retry.textContent='🔄 Riprova';retry.addEventListener('click',loadPlaylists);const hint=document.createElement('p');hint.className='diag-hint';hint.textContent='Se il problema persiste, apri il link direttamente in Safari/Chrome: alcuni WebView di Telegram bloccano richieste cross-origin.';box.append(diag,retry,hint);el.grid.appendChild(box);el.loader.classList.add('hidden');}
 
   // Ricerca, ordinamento dei preferiti e caricamento progressivo a gruppi.

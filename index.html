@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE v22 DEV: URL stream visibile e inserimento manuale dei canali -->
+<!-- TV LIVE v23 DEV: URL stream visibile e inserimento manuale dei canali -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v22 DEV</title>
+<title>TV LIVE v23 DEV</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
@@ -226,15 +226,8 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
 @media(prefers-reduced-motion:reduce){.in-telegram .brand-row{transition:none!important}}
 
 
-/* v21: zapping casuale accanto ai preferiti */
-.card-actions{position:absolute;top:3px;right:3px;z-index:4;display:flex;align-items:center;gap:4px}
-.card-actions .card-star,.card-actions .card-random{position:static!important;inset:auto!important;width:25px!important;height:25px!important;min-width:25px;padding:0!important;display:grid;place-items:center;border:1px solid #ffffff20;border-radius:50%;background:#080a12d9;color:#fff;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);line-height:1;cursor:pointer}
-.card-actions .card-star{font-size:15px!important;color:#ffffffb8}
-.card-actions .card-star.active{color:var(--star);background:#fbbf2430}
-.card-actions .card-random{color:#d8ccff;background:#17142bdc}
-.card-actions .card-random svg{width:14px;height:14px;display:block}
-.card-actions button:active{transform:scale(.88)}
-@media(min-width:650px){.card-actions{top:5px;right:5px;gap:5px}.card-actions .card-star,.card-actions .card-random{width:31px!important;height:31px!important;min-width:31px;font-size:18px!important}.card-actions .card-random svg{width:17px;height:17px}}
+/* v23: nessun comando casuale sulle schede; lo zapping vive nel lettore */
+.card-actions,.card-random{display:none!important}
 /* v21: pulsante fullscreen alternativo nel pannello del lettore */
 #player-fullscreen{display:grid;place-items:center}
 #player-fullscreen svg{width:18px;height:18px;display:block}
@@ -264,6 +257,37 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
 #manual-stream-status{min-height:16px;text-align:center}
 @media(max-width:390px){.player-url-bar{left:7px;right:7px;bottom:calc(59px + var(--safe-b));padding:7px}.player-stream-url{font-size:9px}.copy-stream-url{width:29px;height:29px;flex-basis:29px}}
 
+
+/* v23 DEV — adattamento video, zapping casuale nel player e URL temporaneo */
+#player-random svg{width:18px;height:18px;display:block}
+#player-adjust{font-size:17px;font-weight:800}
+.player-adjust-menu{position:absolute;top:calc(var(--player-header-top,calc(13px + var(--safe-t))) + 51px);right:12px;z-index:18;display:none;gap:6px;padding:7px;border:1px solid #ffffff24;border-radius:13px;background:#0b0d17ed;box-shadow:0 8px 26px #0009;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.player-adjust-menu.visible{display:flex}
+.player-adjust-menu button{min-width:60px;padding:9px 11px;border:1px solid #ffffff1c;border-radius:9px;background:#ffffff0d;color:#e8e9f2;font-size:11px;font-weight:750}
+.player-adjust-menu button.active{border-color:#8b5cf688;background:#8b5cf633;color:#fff}
+#video.fit-fill{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;transform:none!important}
+#video.fit-zoom{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;transform:scale(1.12)!important}
+#video.fit-fill:fullscreen,#video.fit-fill:-webkit-full-screen,#video.fit-fill:-webkit-fullscreen{object-fit:cover!important}
+#video.fit-zoom:fullscreen,#video.fit-zoom:-webkit-full-screen,#video.fit-zoom:-webkit-fullscreen{object-fit:cover!important;transform:scale(1.12)!important}
+html.video-fullscreen #video.fit-fill,html.video-fullscreen #video.fit-zoom{object-fit:cover!important}
+html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
+.player-url-bar{opacity:0!important;pointer-events:none!important}
+.player-url-bar.visible{opacity:1!important;pointer-events:auto!important}
+#player-modal.open .player-url-bar:not(.visible){opacity:0!important;pointer-events:none!important}
+@media(orientation:landscape){#video{object-fit:contain!important;transform:none!important}}
+
+
+@media(max-width:420px){
+  #player-top{gap:5px!important;padding-right:calc(7px + var(--safe-r))!important;padding-left:calc(62px + var(--safe-l))!important}
+  .player-logo{width:29px!important;height:29px!important;flex-basis:29px!important}
+  .player-live{gap:4px!important;padding:4px 5px!important;font-size:8px!important}
+  .player-action{width:31px!important;height:31px!important;flex-basis:31px!important;font-size:16px!important}
+  .player-action svg{width:15px!important;height:15px!important}
+  #player-adjust{font-size:14px!important}
+  .player-adjust-menu{right:7px!important;gap:4px!important;padding:6px!important}
+  .player-adjust-menu button{min-width:54px!important;padding:8px 7px!important;font-size:10px!important}
+}
+
 </style>
 </head>
 <body>
@@ -283,7 +307,7 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   <nav id="bottom-nav" role="tablist">
     <button class="nav-btn active" data-mode="all" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Canali</span></button>
     <button class="nav-btn" data-mode="favorites" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.26 6.9 1-5 4.87 1.18 6.87L12 17.77l-6.18 3.25L7 14.13 2 9.27l6.9-1L12 2Z"/></svg><span>Preferiti</span><span class="nav-badge hidden" id="fav-badge">0</span></button>
-    <span id="app-version" class="app-version" aria-label="Versione sviluppo 22">DEV v22</span>
+    <span id="app-version" class="app-version" aria-label="Versione sviluppo 23">DEV v23</span>
   </nav>
   <section id="player-modal" role="dialog" aria-modal="true" aria-label="Lettore TV">
     <button class="player-back" id="player-back" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -296,7 +320,12 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
       <img id="player-logo" class="player-logo" alt="" hidden>
       <div class="player-title-info"><div class="player-num" id="player-num">CANALE #0</div><div class="player-name" id="player-name">Canale</div></div>
       <div class="player-live"><i></i> LIVE</div>
-      <button class="player-action" id="player-fullscreen" type="button" aria-label="Schermo intero" title="Schermo intero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/></svg></button><button class="player-action" id="player-star" aria-label="Aggiungi ai preferiti">☆</button>
+      <button class="player-action" id="player-fullscreen" type="button" aria-label="Schermo intero" title="Schermo intero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/></svg></button><button class="player-action" id="player-random" type="button" aria-label="Cerca un canale casuale funzionante" title="Zapping casuale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"/><path d="M4 7h3c5 0 5 10 10 10h3"/><path d="m16 13 4 4-4 4"/><path d="M4 17h3c1.5 0 2.6-1.2 3.6-2.8"/><path d="M14 10.2c.9-1.8 1.8-3.2 3-3.2h3"/></svg></button><button class="player-action" id="player-adjust" type="button" aria-label="Opzioni di adattamento video" title="Adattamento video">⚙</button><button class="player-action" id="player-star" aria-label="Aggiungi ai preferiti">☆</button>
+    </div>
+    <div id="player-adjust-menu" class="player-adjust-menu" role="group" aria-label="Adattamento video">
+      <button type="button" data-fit="contain" class="active" aria-pressed="true">Adatta</button>
+      <button type="button" data-fit="cover" aria-pressed="false">Riempi</button>
+      <button type="button" data-fit="zoom" aria-pressed="false">Zoom</button>
     </div>
     <div id="player-url-bar" class="player-url-bar" aria-label="Indirizzo completo del flusso video">
       <div class="player-url-content"><span class="player-url-label">LINK STREAM</span><span id="player-stream-url" class="player-stream-url" dir="ltr"></span></div>
@@ -349,12 +378,12 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   const PLACEHOLDER_LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="#2a2a3d"/><text x="30" y="36" text-anchor="middle" fill="#8b8b9e" font-size="14" font-family="sans-serif" font-weight="bold">TV</text></svg>');
   const el = {
     content:$('content'), grid:$('channel-grid'), loader:$('loading-more'), stats:$('stats-line'), statsActions:$('stats-actions'), favActions:$('favorites-actions'), addLinkButton:$('add-link-btn'), backupButton:$('backup-btn'), favTools:$('favorites-tools'), favSort:$('favorites-sort'), favHint:$('favorites-hint'), search:$('search'), clear:$('clear-search'), badge:$('fav-badge'),
-    modal:$('player-modal'), video:$('video'), number:$('player-num'), name:$('player-name'), logo:$('player-logo'), star:$('player-star'), fullscreen:$('player-fullscreen'), back:$('player-back'), streamUrl:$('player-stream-url'), copyStreamUrl:$('copy-stream-url'),
+    modal:$('player-modal'), video:$('video'), number:$('player-num'), name:$('player-name'), logo:$('player-logo'), star:$('player-star'), fullscreen:$('player-fullscreen'), random:$('player-random'), adjust:$('player-adjust'), adjustMenu:$('player-adjust-menu'), urlBar:$('player-url-bar'), back:$('player-back'), streamUrl:$('player-stream-url'), copyStreamUrl:$('copy-stream-url'),
     spinner:$('player-loading'), status:$('player-status'), unmute:$('unmute-overlay'), toast:$('toast'), backup:$('backup-modal'), backupStatus:$('backup-status'), file:$('import-file'), manualModal:$('manual-link-modal'), manualUrl:$('manual-stream-url'), manualName:$('manual-stream-name'), manualStatus:$('manual-stream-status'), manualSave:$('save-manual-stream'), manualCancel:$('cancel-manual-stream')
   };
   let channels = [], customChannels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, shakaPlayer = null, mpegtsPlayer = null, activeEngine = '', engineQueue = [], engineIndex = 0, streamSession = 0, engineTimer = null, engineIsReady = false, engineErrors = [], engineVideoListeners = [], activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [];
-  let randomZap = null;
-  const RANDOM_ZAP_MAX = 30, RANDOM_ZAP_TIMEOUT = 18000;
+  let randomZap = null, streamUrlTimer = null, videoFitMode = 'contain';
+  const RANDOM_ZAP_TIMEOUT = 5000;
   const playerLibraryPromises = new Map();
   const SHAKA_SRC = 'https://cdn.jsdelivr.net/npm/shaka-player@5.3.3/dist/shaka-player.compiled.js';
   const MPEGTS_SRC = 'https://cdn.jsdelivr.net/npm/mpegts.js@1.8.2/dist/mpegts.min.js';
@@ -392,7 +421,7 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   }
   updateHeight();
   window.addEventListener('resize',()=>updateHeight());
-  window.addEventListener('orientationchange',()=>setTimeout(()=>updateHeight(),160));
+  window.addEventListener('orientationchange',()=>{setTimeout(()=>{updateHeight();applyVideoFit('contain',false);updatePlayerFrame();},220);});
   window.visualViewport?.addEventListener('resize',()=>updateHeight());
   if(IS_TG){
     try{
@@ -458,7 +487,7 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
     const card=document.createElement('article');
     card.className='channel-card'+(ch.url===activeUrl?' active':'');
     card._channel=ch;
-    card.innerHTML='<div class="card-thumb"><img class="card-logo" loading="lazy" decoding="async" alt=""><span class="card-badge"></span><div class="card-actions"><button class="card-random" type="button" aria-label="Zapping casuale" title="Trova un canale funzionante a caso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"/><path d="M4 7h3c5 0 5 10 10 10h3"/><path d="m16 13 4 4-4 4"/><path d="M4 17h3c1.6 0 2.7-1.3 3.7-3"/><path d="M14 10c.9-1.7 1.8-3 3-3h3"/></svg></button><button class="card-star" type="button" aria-label="Aggiungi ai preferiti"></button></div></div><div class="card-info"><div class="card-name"></div><div class="card-category"></div><div class="card-reorder"><button class="move-fav" type="button" data-direction="-1" aria-label="Sposta in alto" title="Sposta in alto">↑ Su</button><button class="move-fav" type="button" data-direction="1" aria-label="Sposta in basso" title="Sposta in basso">↓ Giù</button></div></div>';
+    card.innerHTML='<div class="card-thumb"><img class="card-logo" loading="lazy" decoding="async" alt=""><span class="card-badge"></span><button class="card-star" type="button" aria-label="Aggiungi ai preferiti"></button></div><div class="card-info"><div class="card-name"></div><div class="card-category"></div><div class="card-reorder"><button class="move-fav" type="button" data-direction="-1" aria-label="Sposta in alto" title="Sposta in alto">↑ Su</button><button class="move-fav" type="button" data-direction="1" aria-label="Sposta in basso" title="Sposta in basso">↓ Giù</button></div></div>';
     const logo=card.querySelector('.card-logo');
     logo.src=ch.logo||PLACEHOLDER_LOGO;
     logo.onerror=()=>{logo.onerror=null;logo.src=PLACEHOLDER_LOGO;};
@@ -474,7 +503,7 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
     return card;
   }
   el.favSort.addEventListener('change',event=>{favoriteSort=event.target.value;try{localStorage.setItem(SORT_KEY,favoriteSort);}catch(e){}applyFilters();});
-  el.grid.addEventListener('click',event=>{const card=event.target.closest('.channel-card');if(!card)return;const ch=card._channel,move=event.target.closest('.move-fav');if(move){event.stopPropagation();moveFavorite(ch.url,Number(move.dataset.direction));return;}if(event.target.closest('.card-random')){event.preventDefault();event.stopPropagation();startRandomZap(ch);return;}if(event.target.closest('.card-star')){event.stopPropagation();const active=toggleFav(ch.url),star=card.querySelector('.card-star');star.classList.toggle('active',active);star.textContent=active?'★':'☆';star.setAttribute('aria-pressed',String(active));haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites'&&!active)applyFilters();else updateStats();return;}openPlayer(ch,card);});
+  el.grid.addEventListener('click',event=>{const card=event.target.closest('.channel-card');if(!card)return;const ch=card._channel,move=event.target.closest('.move-fav');if(move){event.stopPropagation();moveFavorite(ch.url,Number(move.dataset.direction));return;}if(event.target.closest('.card-star')){event.stopPropagation();const active=toggleFav(ch.url),star=card.querySelector('.card-star');star.classList.toggle('active',active);star.textContent=active?'★':'☆';star.setAttribute('aria-pressed',String(active));haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites'&&!active)applyFilters();else updateStats();return;}openPlayer(ch,card);});
   function setupInfiniteScroll(){if(observer)observer.disconnect();if('IntersectionObserver'in window){observer=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&shown<filtered.length)renderNextBatch();},{root:el.content,rootMargin:'400px'});observer.observe(el.loader);}else el.content.addEventListener('scroll',()=>{if(el.content.scrollTop+el.content.clientHeight>=el.content.scrollHeight-500&&shown<filtered.length)renderNextBatch();},{passive:true});}
 
   // Motore multi-formato: HLS.js, Shaka (HLS/DASH), mpegts.js (TS/FLV) e video nativo.
@@ -658,6 +687,17 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   }
   // Imposta il video inline sulle proporzioni reali, ma lascia che il browser
   // porti l'elemento <video> nel top layer quando si usa il fullscreen integrato.
+  function applyVideoFit(mode='contain',userChoice=true){
+    if(!['contain','cover','zoom'].includes(mode))mode='contain';
+    videoFitMode=mode;
+    el.video.classList.toggle('fit-fill',mode==='cover');
+    el.video.classList.toggle('fit-zoom',mode==='zoom');
+    if(el.adjustMenu){el.adjustMenu.querySelectorAll('[data-fit]').forEach(button=>{const active=button.dataset.fit===mode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});}
+    if(mode==='contain')el.video.style.objectFit='contain';
+    else el.video.style.objectFit='cover';
+    if(userChoice)haptic();
+    updatePlayerFrame();
+  }
   function updatePlayerFrame(){
     const video=el.video,wrap=video.parentElement,w=video.videoWidth,h=video.videoHeight;
     if(nativeVideoFullscreen()){
@@ -665,10 +705,13 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
       video.style.width='100vw';video.style.height='100vh';return;
     }
     document.documentElement.classList.remove('video-fullscreen');
-    if(!w||!h||!wrap)return;
+    if(!wrap)return;
     const area=wrap.getBoundingClientRect();if(!area.width||!area.height)return;
-    const scale=Math.min(area.width/w,area.height/h);
-    video.style.width=Math.round(w*scale)+'px';video.style.height=Math.round(h*scale)+'px';
+    if(videoFitMode!=='contain'||!w||!h){video.style.width='100%';video.style.height='100%';}
+    else{
+      const scale=Math.min(area.width/w,area.height/h);
+      video.style.width=Math.round(w*scale)+'px';video.style.height=Math.round(h*scale)+'px';
+    }
     requestAnimationFrame(()=>{
       if(!el.modal.classList.contains('open')||nativeVideoFullscreen())return;
       const frame=video.getBoundingClientRect(),root=getComputedStyle(document.documentElement);
@@ -749,8 +792,8 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   document.addEventListener('webkitfullscreenerror',()=>console.warn('Richiesta fullscreen rifiutata dal browser'));
   el.video.addEventListener('webkitbeginfullscreen',handleNativeFullscreenChange);
   el.video.addEventListener('webkitendfullscreen',handleNativeFullscreenChange);
-  window.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
-  window.visualViewport?.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
+  window.addEventListener('resize',()=>{if(el.modal.classList.contains('open')){if(window.innerWidth>window.innerHeight&&videoFitMode!=='contain')applyVideoFit('contain',false);else updatePlayerFrame();}});
+  window.visualViewport?.addEventListener('resize',()=>{if(el.modal.classList.contains('open')){if(window.innerWidth>window.innerHeight&&videoFitMode!=='contain')applyVideoFit('contain',false);else updatePlayerFrame();}});
   // Doppio tocco sul video: fallback gestuale se i controlli nativi della WebView
   // non mostrano o non attivano il comando fullscreen.
   let lastVideoTap=0,lastVideoTapX=0,lastVideoTapY=0;
@@ -761,10 +804,12 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
     else{lastVideoTap=now;lastVideoTapX=touch.clientX;lastVideoTapY=touch.clientY;}
   },{passive:true});
   el.video.addEventListener('dblclick',requestNativeVideoFullscreen);
-  function showPlayerControls(){el.modal.classList.add('show-controls');clearTimeout(controlsTimer);controlsTimer=setTimeout(()=>{if(!el.video.paused)el.modal.classList.remove('show-controls');},3500);}
+  function showPlayerControls(){el.modal.classList.add('show-controls');clearTimeout(controlsTimer);controlsTimer=setTimeout(()=>{if(!el.video.paused){el.modal.classList.remove('show-controls');el.adjustMenu?.classList.remove('visible');}},3500);}
   function setPlayerChannel(ch,card=null,numberLabel=null){
     activeChannel=ch;activeUrl=ch.url;
+    applyVideoFit('contain',false);
     if(el.streamUrl){el.streamUrl.textContent=ch.url;el.streamUrl.title=ch.url;}
+    clearTimeout(streamUrlTimer);el.urlBar?.classList.add('visible');streamUrlTimer=setTimeout(()=>el.urlBar?.classList.remove('visible'),10000);
     el.number.textContent=numberLabel||('CANALE #'+ch.num);
     el.name.textContent=ch.name;
     el.logo.hidden=!ch.logo;
@@ -781,48 +826,41 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
     }
     showPlayerControls();
   }
-  function cancelRandomZap(){if(!randomZap)return;clearTimeout(randomZap.timer);randomZap=null;}
+  function cancelRandomZap(){if(!randomZap)return;clearTimeout(randomZap.timer);randomZap=null;el.random?.classList.remove('active');}
   function shuffled(list){const result=list.slice();for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
-  function finishRandomZap(scan){
-    if(randomZap!==scan)return;
-    clearTimeout(scan.timer);randomZap=null;destroyStream();el.spinner.classList.remove('visible');el.unmute.classList.remove('visible');
-    el.status.replaceChildren();
-    const remaining=channels.some(ch=>!scan.tried.has(ch.url)&&ch.url!==scan.source?.url);
-    const message=document.createElement('div');message.textContent='Non ho trovato un canale video funzionante nei '+scan.index+' tentativi casuali.';
-    const retry=document.createElement('button');retry.type='button';retry.textContent=remaining?'Cerca altri canali':'Ricomincia la ricerca';
-    retry.addEventListener('click',()=>startRandomZap(scan.source,remaining?scan.tried:new Set()));
-    el.status.append(message,retry);el.status.classList.add('visible');
-  }
+  function allAvailableChannels(){const seen=new Set();return [...channels,...customChannels].filter(ch=>ch?.url&&!seen.has(ch.url)&&seen.add(ch.url));}
   function tryNextRandomChannel(scan){
     if(randomZap!==scan)return;
     clearTimeout(scan.timer);scan.timer=null;
-    if(scan.index>=scan.limit){finishRandomZap(scan);return;}
-    const ch=scan.pool[scan.index++];scan.tried.add(ch.url);
-    setPlayerChannel(ch,null,'CASUALE · '+scan.index+'/'+scan.limit);
+    if(!scan.pool.length){randomZap=null;el.random?.classList.remove('active');toast('Nessun canale disponibile');return;}
+    // Quando tutti i canali sono stati provati, rimescola l'intera lista e continua.
+    if(scan.index>=scan.pool.length){scan.pool=shuffled(scan.pool);scan.index=0;scan.round++;}
+    const ch=scan.pool[scan.index++];
+    setPlayerChannel(ch,null,'RICERCA CASUALE · GIRO '+scan.round);
     el.status.classList.remove('visible');el.unmute.classList.remove('visible');el.spinner.classList.add('visible');
+    applyVideoFit('contain',false);
     startStream(ch.url,false,scan);
     showPlayerControls();
   }
   function skipRandomCandidate(scan,reason){
     if(randomZap!==scan)return;
-    console.info('TV LIVE zapping casuale: salto canale',activeChannel?.name||'',reason||'nessun video');
+    console.info('TV LIVE zapping casuale: salto canale',activeChannel?.name||'',reason||'nessun video entro 5 secondi');
     clearTimeout(scan.timer);scan.timer=null;
     tryNextRandomChannel(scan);
   }
-  function startRandomZap(sourceChannel,triedBefore=new Set()){
-    if(!channels.length){toast('Nessun canale disponibile');return;}
+  function startRandomZap(sourceChannel=activeChannel){
+    const available=allAvailableChannels();
+    if(!available.length){toast('Nessun canale disponibile');return;}
     cancelRandomZap();
-    let pool=channels.filter(ch=>!triedBefore.has(ch.url)&&ch.url!==sourceChannel?.url);
-    if(!pool.length){triedBefore=new Set();pool=channels.filter(ch=>ch.url!==sourceChannel?.url);}
-    if(!pool.length)pool=channels.slice();
-    pool=shuffled(pool);
-    const scan={pool,index:0,limit:Math.min(RANDOM_ZAP_MAX,pool.length),timer:null,session:0,source:sourceChannel||null,tried:new Set(triedBefore)};
-    randomZap=scan;haptic();ensurePlayerOpen();tryNextRandomChannel(scan);
+    let candidates=available.filter(ch=>ch.url!==sourceChannel?.url);
+    if(!candidates.length)candidates=available;
+    const scan={pool:shuffled(candidates),index:0,round:1,timer:null,session:0,source:sourceChannel||null};
+    randomZap=scan;el.random?.classList.add('active');haptic();ensurePlayerOpen();tryNextRandomChannel(scan);
   }
   function confirmRandomZap(){
     const scan=randomZap,video=el.video;
-    if(!scan||scan.session!==streamSession||video.paused||video.videoWidth<=0||video.videoHeight<=0)return;
-    clearTimeout(scan.timer);scan.timer=null;randomZap=null;
+    if(!scan||scan.session!==streamSession||video.paused||video.readyState<2||video.videoWidth<=0||video.videoHeight<=0)return;
+    clearTimeout(scan.timer);scan.timer=null;randomZap=null;el.random?.classList.remove('active');
     el.spinner.classList.remove('visible');el.status.classList.remove('visible');
     const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');
     if(video.muted){if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';el.unmute.classList.add('visible');}
@@ -833,14 +871,17 @@ html.video-fullscreen #video{position:fixed!important;inset:0!important;width:10
   el.video.addEventListener('playing',confirmRandomZap);
   el.video.addEventListener('loadeddata',confirmRandomZap);
   function openPlayer(ch,card){cancelRandomZap();haptic();setPlayerChannel(ch,card);ensurePlayerOpen();startStream(ch.url);showPlayerControls();}
-  function closePlayer(fromHistory=false){cancelRandomZap();el.modal.classList.remove('open','show-controls');document.body.style.overflow='';try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}catch(e){}destroyStream();activeChannel=null;activeUrl=null;el.unmute.classList.remove('visible');try{tg?.BackButton?.hide();}catch(e){}if(!fromHistory&&history.state?.modal==='player'){try{history.back();}catch(e){}}}
+  function closePlayer(fromHistory=false){cancelRandomZap();clearTimeout(streamUrlTimer);el.urlBar?.classList.remove('visible');el.adjustMenu?.classList.remove('visible');el.modal.classList.remove('open','show-controls');document.body.style.overflow='';try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}catch(e){}destroyStream();activeChannel=null;activeUrl=null;el.unmute.classList.remove('visible');try{tg?.BackButton?.hide();}catch(e){}if(!fromHistory&&history.state?.modal==='player'){try{history.back();}catch(e){}}}
   el.back.addEventListener('click',()=>closePlayer());
   el.copyStreamUrl.addEventListener('click',async()=>{const value=activeUrl||el.streamUrl.textContent;if(!value)return;try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(value);else throw Error('clipboard non disponibile');toast('Link copiato');}catch(error){const helper=document.createElement('textarea');helper.value=value;helper.setAttribute('readonly','');helper.style.cssText='position:fixed;opacity:0;left:-9999px;top:0';document.body.appendChild(helper);helper.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}helper.remove();toast(ok?'Link copiato':'Impossibile copiare il link');}haptic();});
   el.fullscreen.addEventListener('click',togglePlayerFullscreen);updateFullscreenButton();
+  el.random.addEventListener('click',()=>{if(!el.modal.classList.contains('open'))return;startRandomZap(activeChannel);});
+  el.adjust.addEventListener('click',()=>{showPlayerControls();el.adjustMenu.classList.toggle('visible');haptic();});
+  el.adjustMenu.querySelectorAll('[data-fit]').forEach(button=>button.addEventListener('click',()=>{applyVideoFit(button.dataset.fit,true);el.adjustMenu.classList.remove('visible');showPlayerControls();}));
   el.star.addEventListener('click',()=>{if(!activeChannel)return;const active=toggleFav(activeChannel.url);updatePlayerStar();haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites')applyFilters();});
   el.unmute.addEventListener('click',async()=>{const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');try{el.video.muted=false;if(el.video.volume===0)el.video.volume=1;if(el.video.paused)await el.video.play();el.unmute.classList.remove('visible');if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';haptic();}catch(error){el.video.muted=true;if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';el.unmute.classList.add('visible');}});
   el.video.addEventListener('playing',()=>el.spinner.classList.remove('visible'));
-  el.video.addEventListener('click',()=>{el.modal.classList.contains('show-controls')?el.modal.classList.remove('show-controls'):showPlayerControls();});
+  el.video.addEventListener('click',()=>{if(el.modal.classList.contains('show-controls')){el.modal.classList.remove('show-controls');el.adjustMenu.classList.remove('visible');}else showPlayerControls();});
   let touchY=0,touchAt=0;el.video.addEventListener('touchstart',event=>{touchY=event.touches[0].clientY;touchAt=Date.now();showPlayerControls();},{passive:true});el.video.addEventListener('touchend',event=>{if(isFullscreen())return;const dy=event.changedTouches[0].clientY-touchY;if(dy>120&&Date.now()-touchAt<500)closePlayer();},{passive:true});
 
 

@@ -305,12 +305,12 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   #video{object-fit:contain!important;object-position:center center!important;transform:none!important;}
 }
 
-/* Correzione definitiva landscape: controlli canale in alto, URL in basso. */
+/* Correzione definitiva landscape: controlli canale a filo del bordo superiore, URL in basso. */
 @media (orientation:landscape){
-  :root{--player-header-top:4px!important;}
+  :root{--player-header-top:0px!important;}
   #player-modal.open #player-top,
   #player-modal.open .player-back{
-    top:4px!important;
+    top:0!important;
   }
   #player-modal.open .player-url-bar{
     top:auto!important;

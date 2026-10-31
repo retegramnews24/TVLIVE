@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
+<!-- TV LIVE v16: layout fluido per Telegram Android, safe-area reale senza offset fissi -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v15</title>
+<title>TV LIVE v16</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b),var(--android-nav-fallback));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
+:root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
 @supports not(height:100dvh){:root{--app-h:100vh}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{margin:0;width:100%;height:var(--app-h);overflow:hidden;position:fixed;inset:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;-webkit-touch-callout:none}button,input{font:inherit;color:inherit;touch-action:manipulation}button{cursor:pointer}#app{height:var(--app-h);display:flex;flex-direction:column;position:relative;overflow:hidden}
 /* Intestazione e ricerca */
@@ -28,6 +29,56 @@
 #toast{position:fixed;bottom:calc(var(--nav-h) + var(--nav-inset) + 20px);left:50%;z-index:500;display:flex;max-width:calc(100vw - 32px);align-items:center;gap:8px;padding:12px 20px;border:1px solid #ffffff1a;border-radius:99px;background:#1e2030f5;color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;box-shadow:0 5px 22px #0008;backdrop-filter:blur(18px);transform:translate(-50%,20px);transition:opacity .25s,transform .25s}#toast.show{opacity:1;transform:translate(-50%,0)}#toast.star-toast{color:var(--star)}#content::-webkit-scrollbar{width:4px}#content::-webkit-scrollbar-thumb{border-radius:3px;background:var(--surface3)}
 @keyframes pulse{50%{opacity:.65;transform:scale(.88)}}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes shimmer{to{background-position:-200% 0}}@keyframes spin{to{transform:rotate(360deg)}}
 @media(min-width:900px){#app-header{padding:calc(16px + var(--safe-t)) 24px 16px}#stats-line{padding:13px 24px 0}#channel-grid{grid-template-columns:repeat(4,1fr);padding:14px 24px}}@media(min-width:1200px){#channel-grid{grid-template-columns:repeat(5,1fr)}}@media(max-width:390px){#player-top{gap:6px;padding-right:calc(9px + var(--safe-r));padding-left:calc(62px + var(--safe-l))}.player-logo{width:32px;height:32px;flex-basis:32px}.player-name{font-size:13px}.player-live{padding:5px 7px;font-size:8px}.player-action{width:34px;height:34px;flex-basis:34px}}@media(max-width:360px){:root{--nav-h:54px}#app-header{padding:calc(8px + max(var(--safe-t),var(--tg-safe-t)) + var(--tg-content-t)) var(--pad) 8px}.brand-row{justify-content:center;margin-bottom:8px}.brand h1{font-size:15px}.live-indicator{padding:4px 7px;font-size:9px}.header-icon-btn{width:31px;height:31px}#search{padding:10px 40px 10px 38px;font-size:15px}.card-info{padding:6px 10px 6px}.card-name{font-size:12px}.card-category{font-size:10px}.card-star{width:30px;height:30px}.player-back{width:40px;height:40px}#player-top{padding-left:calc(58px + var(--safe-l))}.player-live{display:none}.player-action{width:32px;height:32px;flex-basis:32px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* v16 — struttura viewport: header, contenuto flessibile, barra appoggiata al fondo */
+#app{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) calc(var(--nav-h) + var(--nav-inset));
+  height:var(--app-h);
+  min-height:0;
+}
+#app-header{
+  padding:calc(8px + max(var(--safe-t),var(--tg-safe-t)) + var(--tg-content-t)) var(--pad) 8px!important;
+}
+/* Dentro Telegram il nome dell'app è già nella barra nativa: evita il doppio titolo. */
+.in-telegram .brand-row{display:none!important}
+#search{padding-top:10px;padding-bottom:10px}
+#content{
+  min-height:0;
+  height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  padding:0 0 8px!important;
+  overscroll-behavior:contain;
+}
+.stats-row{padding-top:9px}
+.favorites-tools{margin-top:9px}
+#channel-grid{padding-top:10px;padding-bottom:10px}
+#loading-more{padding:14px}
+#bottom-nav{
+  position:relative!important;
+  inset:auto!important;
+  width:100%;
+  height:calc(var(--nav-h) + var(--nav-inset))!important;
+  min-height:0;
+  display:flex;
+  align-items:flex-start;
+  padding:0 0 var(--nav-inset)!important;
+  box-sizing:border-box;
+  overflow:visible;
+  background:#0a0b13;
+}
+#bottom-nav::after{
+  top:auto!important;
+  bottom:0!important;
+  height:var(--nav-inset)!important;
+  background:#0a0b13;
+}
+.nav-btn{height:var(--nav-h)!important;min-height:var(--nav-h);}
+#toast{bottom:calc(var(--nav-h) + var(--nav-inset) + 12px)}
+@media(max-width:360px){:root{--nav-h:52px}}
+
 </style>
 </head>
 <body>
@@ -78,6 +129,7 @@
   const $ = id => document.getElementById(id);
   const tg = window.Telegram?.WebApp || null;
   const IS_TG = !!(tg?.initData);
+  document.documentElement.classList.toggle('in-telegram', IS_TG);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const HAS_CLOUD = !!(IS_TG && tg.CloudStorage);
   const PLAYLISTS = [
@@ -101,34 +153,63 @@
   };
   let channels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [], initialTgFullscreen = false, playerChangedTgFullscreen = false, tgFullscreenUnsupported = false;
 
-  // Gestisce viewport e aree sicure: evita che la testata finisca sotto i controlli Telegram.
+  // Viewport e safe area: Telegram gestisce la propria barra superiore;
+  // Android/Telegram gestiscono la barra di navigazione nativa.
+  // Rispettiamo solo il safe inset reale: nessun margine fisso aggiunto.
   function updateTelegramInsets(){
+    const root=document.documentElement;
     const px=value=>Math.max(0,Number(value)||0)+'px';
-    // Fascia minima per i tasti Android: non usare il contentSafeAreaInset,
-    // che su alcuni WebView Telegram è molto grande e alza troppo la barra.
-    document.documentElement.style.setProperty('--android-nav-fallback',px(IS_ANDROID ? 28 : 0));
-    // Su Android alcuni WebView riportano safe-area-inset-bottom molto piu' grande
-    // dell'area reale dei tasti di sistema. Limitiamo l'offset della barra a 28px.
-    // La fascia resta opaca, ma non crea piu' centinaia di pixel vuoti.
-    if(IS_ANDROID) document.documentElement.style.setProperty('--nav-inset','28px');
-    if(!IS_TG) return;
-    const safe= tg.safeAreaInset || {};
-    const contentSafe= tg.contentSafeAreaInset || {};
-    document.documentElement.style.setProperty('--tg-safe-t',px(safe.top));
-    document.documentElement.style.setProperty('--tg-content-t',px(contentSafe.top));
-    document.documentElement.style.setProperty('--tg-safe-b',px(IS_ANDROID ? 0 : safe.bottom));
-    document.documentElement.style.setProperty('--tg-content-b',px(contentSafe.bottom));
-    // Usa il safeAreaInset reale di Telegram se disponibile.
-    // Il contentSafeAreaInset.bottom non viene applicato alla barra: può
-    // includere aree di interfaccia non pertinenti e creare spazio vuoto.
-
+    const safe=tg?.safeAreaInset||{};
+    const contentSafe=tg?.contentSafeAreaInset||{};
+    root.style.setProperty('--tg-safe-t',px(safe.top));
+    root.style.setProperty('--tg-content-t',px(contentSafe.top));
+    const cssSafeBottom=parseFloat(getComputedStyle(root).getPropertyValue('--safe-b'))||0;
+    const safeBottom=Math.max(cssSafeBottom,Number(safe.bottom)||0,IS_ANDROID?0:Number(contentSafe.bottom)||0);
+    root.style.setProperty('--tg-safe-b',px(safeBottom));
+    root.style.setProperty('--tg-content-b',px(contentSafe.bottom));
+    root.style.setProperty('--android-nav-fallback','0px');
+    root.style.setProperty('--nav-inset',px(safeBottom));
   }
-  function updateHeight(){ const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight || (IS_TG && (tg.viewportHeight || tg.viewportStableHeight)); if(h > 0) document.documentElement.style.setProperty('--app-h', Math.round(h)+'px'); updateTelegramInsets(); }
+  function updateHeight(event){
+    const visual=window.visualViewport?.height||0;
+    const telegramStable=IS_TG?(Number(tg?.viewportStableHeight)||0):0;
+    const telegramCurrent=IS_TG?(Number(tg?.viewportHeight)||0):0;
+    // viewportStableHeight è il riferimento corretto per ancorare la barra
+    // inferiore durante le animazioni/espansioni della Mini App.
+    let height=telegramStable||visual||telegramCurrent||window.innerHeight;
+    // Quando la tastiera riduce il visual viewport, seguiamo quello più piccolo.
+    if(IS_TG&&visual&&telegramStable&&visual<telegramStable-120&&document.activeElement===$('search'))height=visual;
+    if(height>0)document.documentElement.style.setProperty('--app-h',Math.round(height)+'px');
+    updateTelegramInsets();
+  }
   updateHeight();
-  window.addEventListener('resize', updateHeight);
-  window.addEventListener('orientationchange', () => setTimeout(updateHeight,150));
-  window.visualViewport?.addEventListener('resize', updateHeight);
-  if(IS_TG){ try{tg.ready();tg.expand();tg.setHeaderColor?.('#090a12');tg.setBackgroundColor?.('#090a12');tg.disableVerticalSwipes?.();tg.onEvent?.('viewportChanged',updateHeight);tg.onEvent?.('safeAreaChanged',updateTelegramInsets);tg.onEvent?.('contentSafeAreaChanged',updateTelegramInsets);tg.onEvent?.('fullscreenChanged',()=>{playerChangedTgFullscreen=!!(el.modal.classList.contains('open')&&!!tg.isFullscreen!==initialTgFullscreen);updateHeight();requestAnimationFrame(()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});updateFullscreenButton();});tg.onEvent?.('fullscreenFailed',event=>{tgFullscreenUnsupported=true;updateFullscreenButton();toast(event?.error==='UNSUPPORTED'?'Schermo intero Telegram non supportato su questo dispositivo.':'Telegram non ha potuto attivare lo schermo intero.');});}catch(e){} }
+  window.addEventListener('resize',()=>updateHeight());
+  window.addEventListener('orientationchange',()=>setTimeout(()=>updateHeight(),160));
+  window.visualViewport?.addEventListener('resize',()=>updateHeight());
+  if(IS_TG){
+    try{
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor?.('#090a12');
+      tg.setBackgroundColor?.('#090a12');
+      tg.setBottomBarColor?.('#090a12');
+      tg.disableVerticalSwipes?.();
+      tg.onEvent?.('viewportChanged',event=>updateHeight(event));
+      tg.onEvent?.('safeAreaChanged',updateTelegramInsets);
+      tg.onEvent?.('contentSafeAreaChanged',updateTelegramInsets);
+      tg.onEvent?.('fullscreenChanged',()=>{
+        playerChangedTgFullscreen=!!(el.modal.classList.contains('open')&&!!tg.isFullscreen!==initialTgFullscreen);
+        updateHeight();
+        requestAnimationFrame(()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
+        updateFullscreenButton();
+      });
+      tg.onEvent?.('fullscreenFailed',event=>{
+        tgFullscreenUnsupported=true;
+        updateFullscreenButton();
+        toast(event?.error==='UNSUPPORTED'?'Schermo intero Telegram non supportato su questo dispositivo.':'Telegram non ha potuto attivare lo schermo intero.');
+      });
+    }catch(e){console.warn('Telegram viewport:',e);}
+  }
 
   const normalize = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   function haptic(style='light'){ try{ if(IS_TG && tg.HapticFeedback){tg.HapticFeedback.impactOccurred(style);return;} }catch(e){} if(navigator.vibrate) navigator.vibrate(8); }

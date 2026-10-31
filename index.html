@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE 1.0: versione finale -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
@@ -203,7 +202,7 @@
 #channel-grid{padding-bottom:8px}
 #bottom-nav{position:relative!important;inset:auto!important;height:calc(var(--nav-h) + var(--nav-inset))!important;min-height:0;overflow:visible;background:#0a0b13}
 #bottom-nav::after{top:auto!important;bottom:0!important;height:var(--nav-inset)!important;background:#0a0b13}
-.app-version{position:absolute;right:6px;bottom:calc(var(--nav-inset) + 2px);z-index:75;pointer-events:none;color:#73798c;font-size:8px;font-weight:700;letter-spacing:.04em;line-height:1;opacity:.72}
+
 
 /* Fullscreen nativo: il video è l'elemento fullscreen, non il contenitore dell'app. */
 #player-modal{transform:none!important;will-change:auto!important;contain:none!important}
@@ -222,7 +221,7 @@ html.video-fullscreen,html.video-fullscreen body{overflow:hidden!important;backg
 html.video-fullscreen #player-modal{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;overflow:visible!important;z-index:2147483647!important}
 html.video-fullscreen #player-video-wrap{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;overflow:visible!important}
 html.video-fullscreen #video{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;object-fit:contain!important;background:#000!important}
-@media(max-width:360px){.in-telegram #app-header{padding-top:calc(max(var(--safe-t),var(--tg-safe-t),var(--tg-content-t),var(--tg-title-zone)) + 4px)!important}.app-version{font-size:7px;right:4px}}
+@media(max-width:360px){.in-telegram #app-header{padding-top:calc(max(var(--safe-t),var(--tg-safe-t),var(--tg-content-t),var(--tg-title-zone)) + 4px)!important}}
 @media(prefers-reduced-motion:reduce){.in-telegram .brand-row{transition:none!important}}
 
 
@@ -288,6 +287,56 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   .player-adjust-menu button{min-width:54px!important;padding:8px 7px!important;font-size:10px!important}
 }
 
+
+/* Fix definitivo fullscreen orizzontale: mostra tutto il fotogramma senza tagli. */
+#player-modal:fullscreen,
+#player-modal:-webkit-full-screen,
+#player-modal:-webkit-fullscreen{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  width:100dvw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+  overflow:hidden!important;background:#000!important;transform:none!important;
+}
+#player-modal:fullscreen #player-video-wrap,
+#player-modal:-webkit-full-screen #player-video-wrap,
+#player-modal:-webkit-fullscreen #player-video-wrap{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;
+}
+#player-modal:fullscreen #video,
+#player-modal:-webkit-full-screen #video,
+#player-modal:-webkit-fullscreen #video{
+  max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+  object-position:center center!important;transform:none!important;background:#000!important;
+}
+#video:fullscreen,#video:-webkit-full-screen,#video:-webkit-fullscreen{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  width:100dvw!important;height:100dvh!important;max-width:100dvw!important;max-height:100dvh!important;
+  object-fit:contain!important;object-position:center center!important;transform:none!important;background:#000!important;
+}
+html.video-fullscreen #player-modal,
+html.video-fullscreen #player-video-wrap{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  width:100dvw!important;height:100dvh!important;overflow:hidden!important;background:#000!important;
+}
+html.video-fullscreen #video{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  width:100dvw!important;height:100dvh!important;max-width:100dvw!important;max-height:100dvh!important;
+  object-fit:contain!important;object-position:center center!important;transform:none!important;background:#000!important;
+}
+@media (orientation:landscape){
+  #player-modal.open #player-video-wrap{inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#000!important}
+  #player-modal.open #video,
+  #player-modal.open #video.fit-fill,
+  #player-modal.open #video.fit-zoom,
+  #video:fullscreen,#video:-webkit-full-screen,#video:-webkit-fullscreen,
+  #player-modal:fullscreen #video,#player-modal:-webkit-full-screen #video,#player-modal:-webkit-fullscreen #video{
+    object-fit:contain!important;object-position:center center!important;transform:none!important;background:#000!important;
+  }
+  html.video-fullscreen #video,html.video-fullscreen #video.fit-fill,html.video-fullscreen #video.fit-zoom{
+    object-fit:contain!important;object-position:center center!important;transform:none!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -307,7 +356,6 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   <nav id="bottom-nav" role="tablist">
     <button class="nav-btn active" data-mode="all" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Canali</span></button>
     <button class="nav-btn" data-mode="favorites" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.26 6.9 1-5 4.87 1.18 6.87L12 17.77l-6.18 3.25L7 14.13 2 9.27l6.9-1L12 2Z"/></svg><span>Preferiti</span><span class="nav-badge hidden" id="fav-badge">0</span></button>
-    <span id="app-version" class="app-version" aria-label="Versione 1.0">v1.0</span>
   </nav>
   <section id="player-modal" role="dialog" aria-modal="true" aria-label="Lettore TV">
     <button class="player-back" id="player-back" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -421,7 +469,7 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   }
   updateHeight();
   window.addEventListener('resize',()=>updateHeight());
-  window.addEventListener('orientationchange',()=>{setTimeout(()=>{updateHeight();applyVideoFit('contain',false);updatePlayerFrame();},220);});
+  window.addEventListener('orientationchange',()=>{updateHeight();setTimeout(()=>{updateHeight();if(isLandscapeViewport())applyVideoFit('contain',false);schedulePlayerFit();},180);setTimeout(schedulePlayerFit,420);});
   window.visualViewport?.addEventListener('resize',()=>updateHeight());
   if(IS_TG){
     try{
@@ -436,7 +484,7 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
       tg.onEvent?.('contentSafeAreaChanged',updateTelegramInsets);
       tg.onEvent?.('fullscreenChanged',()=>{
         updateHeight();
-        requestAnimationFrame(()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
+        schedulePlayerFit();
       });
     }catch(e){console.warn('Telegram viewport:',e);}
   }
@@ -673,44 +721,86 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   function isFullscreen(){
     return nativeVideoFullscreen() || document.fullscreenElement===el.modal || document.webkitFullscreenElement===el.modal;
   }
+  function isLandscapeViewport(){
+    const vv=window.visualViewport;
+    const w=vv?.width||window.innerWidth||0;
+    const h=vv?.height||window.innerHeight||0;
+    return w>h;
+  }
+  function setFitButtons(mode){
+    if(!el.adjustMenu)return;
+    el.adjustMenu.querySelectorAll('[data-fit]').forEach(button=>{
+      const active=button.dataset.fit===mode;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+  }
+  function forceLandscapeContain(){
+    if(!el.modal.classList.contains('open')||!isLandscapeViewport())return false;
+    // In orizzontale la priorità è mostrare l'intero fotogramma: niente cover, zoom o transform.
+    videoFitMode='contain';
+    el.video.classList.remove('fit-fill','fit-zoom');
+    el.video.style.objectFit='contain';
+    el.video.style.objectPosition='center center';
+    el.video.style.transform='none';
+    setFitButtons('contain');
+    return true;
+  }
   function syncNativeFullscreen(){
     const active=nativeVideoFullscreen();
     document.documentElement.classList.toggle('video-fullscreen',active);
     if(active){
-      el.video.style.width='100vw';el.video.style.height='100vh';
-      el.video.style.maxWidth='none';el.video.style.maxHeight='none';
+      forceLandscapeContain();
+      el.video.style.width='100dvw';el.video.style.height='100dvh';
+      el.video.style.maxWidth='100dvw';el.video.style.maxHeight='100dvh';
+      el.video.style.objectPosition='center center';
+      if(isLandscapeViewport()){el.video.style.objectFit='contain';el.video.style.transform='none';}
     }else{
       el.video.style.removeProperty('max-width');el.video.style.removeProperty('max-height');
       if(el.modal.classList.contains('open'))updatePlayerFrame();
       else resetPlayerFrame();
     }
   }
-  // Imposta il video inline sulle proporzioni reali, ma lascia che il browser
-  // porti l'elemento <video> nel top layer quando si usa il fullscreen integrato.
+  // La modalità Adatta calcola le dimensioni del tag video sul rapporto reale del flusso.
+  // In landscape è forzata sempre, così il video non può essere tagliato sopra o sotto.
   function applyVideoFit(mode='contain',userChoice=true){
     if(!['contain','cover','zoom'].includes(mode))mode='contain';
+    if(isLandscapeViewport())mode='contain';
     videoFitMode=mode;
     el.video.classList.toggle('fit-fill',mode==='cover');
     el.video.classList.toggle('fit-zoom',mode==='zoom');
-    if(el.adjustMenu){el.adjustMenu.querySelectorAll('[data-fit]').forEach(button=>{const active=button.dataset.fit===mode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});}
-    if(mode==='contain')el.video.style.objectFit='contain';
-    else el.video.style.objectFit='cover';
+    setFitButtons(mode);
+    el.video.style.objectFit=mode==='contain'?'contain':'cover';
+    el.video.style.objectPosition='center center';
+    el.video.style.transform=mode==='zoom'?'scale(1.12)':'none';
     if(userChoice)haptic();
     updatePlayerFrame();
   }
   function updatePlayerFrame(){
     const video=el.video,wrap=video.parentElement,w=video.videoWidth,h=video.videoHeight;
+    const landscape=forceLandscapeContain();
     if(nativeVideoFullscreen()){
       document.documentElement.classList.add('video-fullscreen');
-      video.style.width='100vw';video.style.height='100vh';return;
+      video.style.width='100dvw';video.style.height='100dvh';
+      video.style.maxWidth='100dvw';video.style.maxHeight='100dvh';
+      video.style.objectPosition='center center';
+      if(landscape){video.style.objectFit='contain';video.style.transform='none';}
+      return;
     }
     document.documentElement.classList.remove('video-fullscreen');
     if(!wrap)return;
-    const area=wrap.getBoundingClientRect();if(!area.width||!area.height)return;
-    if(videoFitMode!=='contain'||!w||!h){video.style.width='100%';video.style.height='100%';}
-    else{
+    const area=wrap.getBoundingClientRect();
+    if(!area.width||!area.height)return;
+    const contain=landscape||videoFitMode==='contain';
+    if(contain&&w>0&&h>0){
       const scale=Math.min(area.width/w,area.height/h);
-      video.style.width=Math.round(w*scale)+'px';video.style.height=Math.round(h*scale)+'px';
+      video.style.width=Math.max(1,Math.round(w*scale))+'px';
+      video.style.height=Math.max(1,Math.round(h*scale))+'px';
+      video.style.objectFit='contain';
+      video.style.objectPosition='center center';
+      video.style.transform='none';
+    }else{
+      video.style.width='100%';video.style.height='100%';
     }
     requestAnimationFrame(()=>{
       if(!el.modal.classList.contains('open')||nativeVideoFullscreen())return;
@@ -720,9 +810,18 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
       document.documentElement.style.setProperty('--player-header-top',Math.round(Math.max(topFloor,frame.top-58))+'px');
     });
   }
+  function schedulePlayerFit(){
+    if(!el.modal.classList.contains('open'))return;
+    const apply=()=>{if(isLandscapeViewport())forceLandscapeContain();updatePlayerFrame();};
+    requestAnimationFrame(()=>requestAnimationFrame(apply));
+    setTimeout(apply,120);
+    setTimeout(apply,360);
+  }
   function resetPlayerFrame(){
     el.video.style.width='100%';el.video.style.height='100%';
     el.video.style.removeProperty('position');el.video.style.removeProperty('inset');
+    el.video.style.removeProperty('max-width');el.video.style.removeProperty('max-height');
+    el.video.style.removeProperty('object-position');el.video.style.removeProperty('transform');
     document.documentElement.style.removeProperty('--player-header-top');
     document.documentElement.classList.remove('video-fullscreen');
   }
@@ -736,23 +835,36 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
       ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M16 3v3a2 2 0 0 0 2 2h3"/><path d="M8 21v-3a2 2 0 0 0-2-2H3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
   }
-  function handleNativeFullscreenChange(){syncNativeFullscreen();updateFullscreenButton();}
+  function handleNativeFullscreenChange(){syncNativeFullscreen();schedulePlayerFit();updateFullscreenButton();}
   async function requestNativeVideoFullscreen(){
-    if(nativeVideoFullscreen())return;
+    if(isFullscreen())return;
+    // Su iOS il fullscreen nativo del video è il percorso più compatibile.
+    if(IS_IOS&&typeof el.video.webkitEnterFullscreen==='function'){
+      try{el.video.webkitEnterFullscreen();return;}catch(error){console.warn('Fullscreen iOS:',error);}
+    }
+    // Android/Chromium: fullscreen del lettore completo. Il video conserva i controlli HTML5,
+    // ma il contenitore consente di applicare object-fit:contain anche in landscape.
     try{
-      if(typeof el.video.webkitEnterFullscreen==='function' && IS_IOS){el.video.webkitEnterFullscreen();return;}
-      if(typeof el.video.requestFullscreen==='function'){
-        const result=el.video.requestFullscreen({navigationUI:'hide'});
-        if(result?.catch)result.catch(error=>console.warn('Fullscreen video:',error));
+      if(typeof el.modal.requestFullscreen==='function'){
+        await el.modal.requestFullscreen({navigationUI:'hide'});
+        schedulePlayerFit();
         return;
       }
-      if(typeof el.video.webkitRequestFullscreen==='function'){el.video.webkitRequestFullscreen();return;}
-      // Ultimo fallback per i client Telegram senza Fullscreen API sul video.
-      if(IS_TG&&typeof tg?.requestFullscreen==='function')tg.requestFullscreen();
-    }catch(error){
-      console.warn('Fullscreen non disponibile:',error);
-      try{if(IS_TG&&typeof tg?.requestFullscreen==='function')tg.requestFullscreen();}catch(e){}
-    }
+    }catch(error){console.warn('Fullscreen lettore:',error);}
+    try{
+      if(typeof el.video.requestFullscreen==='function'){
+        await el.video.requestFullscreen({navigationUI:'hide'});
+        schedulePlayerFit();
+        return;
+      }
+      if(typeof el.modal.webkitRequestFullscreen==='function'){
+        el.modal.webkitRequestFullscreen();schedulePlayerFit();return;
+      }
+    }catch(error){console.warn('Fullscreen video:',error);}
+    try{
+      if(IS_TG&&typeof tg?.requestFullscreen==='function'){tg.requestFullscreen();schedulePlayerFit();return;}
+      toast('Schermo intero non supportato in questa WebView');
+    }catch(error){console.warn('Fullscreen Telegram:',error);toast('Schermo intero non disponibile');}
   }
   async function togglePlayerFullscreen(){
     showPlayerControls();
@@ -763,25 +875,10 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
         else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen();
         else if(IS_TG&&typeof tg?.exitFullscreen==='function')tg.exitFullscreen();
       }catch(error){console.warn('Uscita fullscreen:',error);}
-      updateFullscreenButton();return;
+      schedulePlayerFit();updateFullscreenButton();return;
     }
-    // Il tentativo sull'elemento video conserva i controlli media nativi.
-    try{
-      if(IS_IOS&&typeof el.video.webkitEnterFullscreen==='function'){el.video.webkitEnterFullscreen();return;}
-      if(typeof el.video.requestFullscreen==='function'){
-        await el.video.requestFullscreen({navigationUI:'hide'});return;
-      }
-    }catch(error){console.warn('Fullscreen video non disponibile:',error);}
-    // Fallback: contenitore del player, poi fullscreen della Mini App Telegram.
-    try{
-      if(typeof el.modal.requestFullscreen==='function'){
-        await el.modal.requestFullscreen({navigationUI:'hide'});return;
-      }
-    }catch(error){console.warn('Fullscreen contenitore non disponibile:',error);}
-    try{
-      if(IS_TG&&typeof tg?.requestFullscreen==='function'){tg.requestFullscreen();return;}
-      toast('Schermo intero non supportato in questa WebView');
-    }catch(error){console.warn('Fullscreen Telegram:',error);toast('Schermo intero non disponibile');}
+    await requestNativeVideoFullscreen();
+    updateFullscreenButton();
   }
   el.video.controls=true;
   el.video.addEventListener('loadedmetadata',updatePlayerFrame);
@@ -792,8 +889,9 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   document.addEventListener('webkitfullscreenerror',()=>console.warn('Richiesta fullscreen rifiutata dal browser'));
   el.video.addEventListener('webkitbeginfullscreen',handleNativeFullscreenChange);
   el.video.addEventListener('webkitendfullscreen',handleNativeFullscreenChange);
-  window.addEventListener('resize',()=>{if(el.modal.classList.contains('open')){if(window.innerWidth>window.innerHeight&&videoFitMode!=='contain')applyVideoFit('contain',false);else updatePlayerFrame();}});
-  window.visualViewport?.addEventListener('resize',()=>{if(el.modal.classList.contains('open')){if(window.innerWidth>window.innerHeight&&videoFitMode!=='contain')applyVideoFit('contain',false);else updatePlayerFrame();}});
+  window.addEventListener('resize',()=>{updateHeight();schedulePlayerFit();});
+  window.visualViewport?.addEventListener('resize',()=>{updateHeight();schedulePlayerFit();});
+  screen.orientation?.addEventListener?.('change',()=>{if(isLandscapeViewport())applyVideoFit('contain',false);schedulePlayerFit();});
   // Doppio tocco sul video: fallback gestuale se i controlli nativi della WebView
   // non mostrano o non attivano il comando fullscreen.
   let lastVideoTap=0,lastVideoTapX=0,lastVideoTapY=0;

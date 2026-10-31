@@ -719,6 +719,10 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
     el.video.style.objectFit='contain';
     el.video.style.objectPosition='center center';
     el.video.style.transform='none';
+    // In landscape, place the player toolbar at the top edge rather than below
+    // Telegram's content-safe-area, which is reserved for Telegram's own controls.
+    const safeTop=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-t'))||0;
+    document.documentElement.style.setProperty('--player-header-top',Math.max(4,safeTop)+'px');
     setFitButtons('contain');
     return true;
   }

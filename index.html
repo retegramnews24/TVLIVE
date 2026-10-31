@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE v18: griglia mobile a 3 colonne con testi più leggibili -->
+<!-- TV LIVE v19: motore multi-formato con fallback automatico -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v18</title>
+<title>TV LIVE v19</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
@@ -248,7 +248,10 @@
     modal:$('player-modal'), video:$('video'), number:$('player-num'), name:$('player-name'), logo:$('player-logo'), star:$('player-star'), back:$('player-back'),
     spinner:$('player-loading'), status:$('player-status'), unmute:$('unmute-overlay'), toast:$('toast'), backup:$('backup-modal'), backupStatus:$('backup-status'), file:$('import-file')
   };
-  let channels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [];
+  let channels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, shakaPlayer = null, mpegtsPlayer = null, activeEngine = '', engineQueue = [], engineIndex = 0, streamSession = 0, engineTimer = null, engineIsReady = false, engineErrors = [], engineVideoListeners = [], activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [];
+  const playerLibraryPromises = new Map();
+  const SHAKA_SRC = 'https://cdn.jsdelivr.net/npm/shaka-player@5.3.3/dist/shaka-player.compiled.js';
+  const MPEGTS_SRC = 'https://cdn.jsdelivr.net/npm/mpegts.js@1.8.2/dist/mpegts.min.js';
 
   // Viewport e safe area: Telegram gestisce la propria barra superiore;
   // Android/Telegram gestiscono la barra di navigazione nativa.
@@ -340,16 +343,152 @@
   el.grid.addEventListener('click',event=>{const card=event.target.closest('.channel-card');if(!card)return;const ch=card._channel,move=event.target.closest('.move-fav');if(move){event.stopPropagation();moveFavorite(ch.url,Number(move.dataset.direction));return;}if(event.target.closest('.card-star')){const active=toggleFav(ch.url),star=card.querySelector('.card-star');star.classList.toggle('active',active);star.textContent=active?'★':'☆';star.setAttribute('aria-pressed',String(active));haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites'&&!active)applyFilters();else updateStats();return;}openPlayer(ch,card);});
   function setupInfiniteScroll(){if(observer)observer.disconnect();if('IntersectionObserver'in window){observer=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&shown<filtered.length)renderNextBatch();},{root:el.content,rootMargin:'400px'});observer.observe(el.loader);}else el.content.addEventListener('scroll',()=>{if(el.content.scrollTop+el.content.clientHeight>=el.content.scrollHeight-500&&shown<filtered.length)renderNextBatch();},{passive:true});}
 
-  // Lettore HLS con fallback nativo per Safari/iOS.
-  function destroyStream(){if(hls){try{hls.destroy();}catch(e){}hls=null;}try{el.video.pause();el.video.removeAttribute('src');el.video.load();}catch(e){}resetPlayerFrame();}
-  function playerError(message,url){el.status.innerHTML='';const text=document.createElement('div');text.textContent=message;const button=document.createElement('button');button.id='open-ext';button.type='button';button.textContent='Apri nel browser';button.addEventListener('click',()=>{if(IS_TG&&tg.openLink){try{tg.openLink(url);return;}catch(e){}}try{window.open(url,'_blank','noopener');}catch(e){}});el.status.append(text,button);el.status.classList.add('visible');}
-  function autoplay(){el.video.muted=false;el.video.volume=1;const attempt=el.video.play();if(attempt?.catch)attempt.catch(()=>{el.video.muted=true;const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';el.spinner.classList.remove('visible');el.unmute.classList.add('visible');const mutedPlay=el.video.play();if(mutedPlay?.catch)mutedPlay.catch(()=>{if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';});});}
-  function startStream(url){destroyStream();el.video.disablePictureInPicture=true;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');const unmuteIcon=el.unmute.querySelector('.unmute-icon'),unmuteLabel=el.unmute.querySelector('.unmute-label');if(unmuteIcon)unmuteIcon.textContent='🔊';if(unmuteLabel)unmuteLabel.textContent='Tocca per attivare l’audio';try{el.video.muted=false;el.video.volume=1;}catch(e){}
-    if(window.Hls?.isSupported()){
-      try{const instance=new Hls({enableWorker:true,lowLatencyMode:true,maxBufferLength:30});hls=instance;instance.loadSource(url);instance.attachMedia(el.video);instance.on(Hls.Events.MANIFEST_PARSED,()=>{if(hls!==instance)return;el.spinner.classList.remove('visible');autoplay();});instance.on(Hls.Events.ERROR,(event,data)=>{if(hls!==instance||!data.fatal)return;if(data.type===Hls.ErrorTypes.NETWORK_ERROR){playerError('Errore di rete. Riprovo…',url);setTimeout(()=>{if(hls===instance)instance.startLoad();},1500);}else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){playerError('Errore media. Riprovo…',url);setTimeout(()=>{if(hls===instance)instance.recoverMediaError();},1500);}else{el.spinner.classList.remove('visible');playerError('Canale non disponibile.',url);instance.destroy();hls=null;}});}
-      catch(error){console.warn('Hls init:',error);el.spinner.classList.remove('visible');playerError('Errore riproduttore.',url);}
-    }else if(el.video.canPlayType('application/vnd.apple.mpegurl')){el.video.addEventListener('loadeddata',()=>{el.spinner.classList.remove('visible');autoplay();},{once:true});el.video.addEventListener('error',()=>{el.spinner.classList.remove('visible');playerError('Canale non disponibile.',url);},{once:true});el.video.src=url;}
-    else{el.spinner.classList.remove('visible');playerError('HLS non supportato.',url);}
+  // Motore multi-formato: HLS.js, Shaka (HLS/DASH), mpegts.js (TS/FLV) e video nativo.
+  // Le librerie aggiuntive vengono scaricate solo se il formato ne ha bisogno.
+  function loadPlayerLibrary(src, isReady){
+    try{if(isReady())return Promise.resolve(true);}catch(e){}
+    if(!playerLibraryPromises.has(src)){
+      playerLibraryPromises.set(src,new Promise(resolve=>{
+        const script=document.createElement('script');
+        script.src=src;script.async=true;
+        script.onload=()=>{try{const ok=!!isReady();if(!ok)playerLibraryPromises.delete(src);resolve(ok);}catch(e){playerLibraryPromises.delete(src);resolve(false);}};
+        script.onerror=()=>{playerLibraryPromises.delete(src);resolve(false);};
+        document.head.appendChild(script);
+      }));
+    }
+    return playerLibraryPromises.get(src);
+  }
+  function clearEngineVideoListeners(){
+    engineVideoListeners.forEach(([event,handler])=>el.video.removeEventListener(event,handler));
+    engineVideoListeners=[];
+  }
+  function listenEngineVideo(event,handler){el.video.addEventListener(event,handler);engineVideoListeners.push([event,handler]);}
+  function disposeActiveEngine(){
+    clearTimeout(engineTimer);engineTimer=null;clearEngineVideoListeners();
+    if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(shakaPlayer){const player=shakaPlayer;shakaPlayer=null;try{const result=player.destroy();result?.catch?.(()=>{});}catch(e){}}
+    if(mpegtsPlayer){const player=mpegtsPlayer;mpegtsPlayer=null;try{player.pause?.();player.unload?.();player.detachMediaElement?.();player.destroy?.();}catch(e){}}
+    try{el.video.pause();el.video.removeAttribute('src');el.video.load();}catch(e){}
+  }
+  function destroyStream(){streamSession++;activeEngine='';engineQueue=[];engineIndex=0;disposeActiveEngine();resetPlayerFrame();}
+  function playerError(message,url){
+    el.status.innerHTML='';
+    const text=document.createElement('div');text.textContent=message;el.status.append(text);
+    if(engineErrors.length){const details=document.createElement('small');details.style.cssText='display:block;margin-top:9px;color:#aab0c2;font-size:10px;line-height:1.4;word-break:break-word';details.textContent='Motori provati: '+engineErrors.join(' · ');el.status.append(details);}
+    const retry=document.createElement('button');retry.type='button';retry.textContent='Riprova i player';
+    retry.addEventListener('click',()=>startStream(url,true));
+    const external=document.createElement('button');external.type='button';external.textContent='Apri nel browser';
+    external.addEventListener('click',()=>{if(IS_TG&&tg.openLink){try{tg.openLink(url);return;}catch(e){}}try{window.open(url,'_blank','noopener');}catch(e){}});
+    el.status.append(retry,external);el.status.classList.add('visible');
+  }
+  function autoplay(){
+    el.video.muted=false;el.video.volume=1;
+    const attempt=el.video.play();
+    if(attempt?.catch)attempt.catch(()=>{
+      el.video.muted=true;
+      const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');
+      if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';
+      el.spinner.classList.remove('visible');el.unmute.classList.add('visible');
+      const mutedPlay=el.video.play();
+      if(mutedPlay?.catch)mutedPlay.catch(()=>{if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';});
+    });
+  }
+  function streamPath(url){try{return new URL(url,location.href).pathname.toLowerCase();}catch(e){return String(url).toLowerCase().split(/[?#]/)[0];}}
+  function getEngineQueue(url){
+    const path=streamPath(url);
+    if(/\.mpd$/.test(path))return ['shaka','native'];
+    if(/\.(ts|m2ts)$/.test(path))return ['mpegts','native'];
+    if(/\.flv$/.test(path))return ['mpegts','native'];
+    if(/\.(mp4|m4v|mov|webm|mp3|m4a|aac|ogg)$/.test(path))return ['native','mpegts'];
+    if(/\.(m3u8|m3u)$/.test(path))return ['hls','shaka','native'];
+    // URL senza estensione: molti server restituiscono HLS o un flusso TS dinamico.
+    return ['hls','shaka','mpegts','native'];
+  }
+  function engineReady(session,engine){
+    if(session!==streamSession||activeEngine!==engine||engineIsReady)return;
+    engineIsReady=true;clearTimeout(engineTimer);engineTimer=null;el.spinner.classList.remove('visible');el.status.classList.remove('visible');autoplay();
+  }
+  function engineFailed(session,url,engine,reason){
+    if(session!==streamSession||activeEngine!==engine)return;
+    console.warn('TV LIVE player fallback:',engine,reason||'errore');
+    engineErrors.push(engine+': '+String(reason||'errore').slice(0,90));
+    activeEngine='';startNextEngine(session,url);
+  }
+  function startNextEngine(session,url){
+    if(session!==streamSession)return;
+    disposeActiveEngine();
+    if(engineIndex>=engineQueue.length){
+      el.spinner.classList.remove('visible');
+      playerError('Questo flusso non è riproducibile in questa WebView. Può richiedere autorizzazioni, CORS/Referer, DRM o un indirizzo di pagina invece di uno stream diretto.',url);
+      return;
+    }
+    const engine=engineQueue[engineIndex++];activeEngine=engine;engineIsReady=false;
+    const timeout=engine==='mpegts'?16000:13000;
+    engineTimer=setTimeout(()=>engineFailed(session,url,engine,'timeout'),timeout);
+    el.spinner.classList.add('visible');el.status.classList.remove('visible');
+    if(engine==='hls'){
+      if(!window.Hls?.isSupported()){engineFailed(session,url,engine,'HLS.js non supportato');return;}
+      try{
+        const instance=new Hls({enableWorker:true,lowLatencyMode:false,maxBufferLength:40,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:2,fragLoadingMaxRetry:2});
+        hls=instance;
+        instance.on(Hls.Events.MANIFEST_PARSED,()=>engineReady(session,engine));
+        instance.on(Hls.Events.ERROR,(event,data)=>{if(hls!==instance||session!==streamSession||activeEngine!==engine||!data.fatal)return;engineFailed(session,url,engine,(data.details||data.type||'errore HLS'));});
+        instance.loadSource(url);instance.attachMedia(el.video);
+      }catch(error){engineFailed(session,url,engine,error?.message||'avvio HLS fallito');}
+      return;
+    }
+    if(engine==='shaka'){
+      loadPlayerLibrary(SHAKA_SRC,()=>!!window.shaka?.Player).then(async loaded=>{
+        if(session!==streamSession||activeEngine!==engine)return;
+        if(!loaded||!window.shaka?.Player){engineFailed(session,url,engine,'Shaka Player non disponibile');return;}
+        try{
+          window.shaka.polyfill?.installAll?.();
+          if(window.shaka.Player.isBrowserSupported&&!window.shaka.Player.isBrowserSupported()){engineFailed(session,url,engine,'browser non supportato da Shaka');return;}
+          const player=new window.shaka.Player();shakaPlayer=player;
+          player.addEventListener('error',event=>engineFailed(session,url,engine,event?.detail?.code||'errore Shaka'));
+          await player.attach(el.video);
+          if(session!==streamSession||activeEngine!==engine)return;
+          player.configure({streaming:{bufferingGoal:20,rebufferingGoal:2,retryParameters:{maxAttempts:2,baseDelay:500}}});
+          await player.load(url);
+          engineReady(session,engine);
+        }catch(error){engineFailed(session,url,engine,error?.message||'caricamento DASH/HLS fallito');}
+      });
+      return;
+    }
+    if(engine==='mpegts'){
+      loadPlayerLibrary(MPEGTS_SRC,()=>!!window.mpegts?.createPlayer).then(loaded=>{
+        if(session!==streamSession||activeEngine!==engine)return;
+        if(!loaded||!window.mpegts?.createPlayer||!window.mpegts.isSupported?.()){engineFailed(session,url,engine,'MPEG-TS non supportato');return;}
+        try{
+          const path=streamPath(url),type=path.endsWith('.flv')?'flv':path.endsWith('.m2ts')?'m2ts':'mpegts';
+          const player=window.mpegts.createPlayer({type,isLive:true,url},{enableWorker:true,lazyLoad:false,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:2,liveBufferLatencyMinRemain:0.5});
+          mpegtsPlayer=player;
+          player.on(window.mpegts.Events.ERROR,(kind,detail,info)=>engineFailed(session,url,engine,detail||kind||'errore MPEG-TS'));
+          listenEngineVideo('loadedmetadata',()=>engineReady(session,engine));
+          listenEngineVideo('canplay',()=>engineReady(session,engine));
+          player.attachMediaElement(el.video);player.load();
+          const playResult=player.play();playResult?.catch?.(error=>console.warn('MPEG-TS play:',error));
+        }catch(error){engineFailed(session,url,engine,error?.message||'avvio MPEG-TS fallito');}
+      });
+      return;
+    }
+    // Ultimo tentativo: decodifica nativa del browser (MP4/HLS nativo e altri formati ammessi).
+    if(engine==='native'){
+      listenEngineVideo('loadedmetadata',()=>engineReady(session,engine));
+      listenEngineVideo('canplay',()=>engineReady(session,engine));
+      listenEngineVideo('error',()=>engineFailed(session,url,engine,el.video.error?.message||'errore video nativo'));
+      try{el.video.src=url;el.video.load();}catch(error){engineFailed(session,url,engine,error?.message||'avvio video nativo fallito');}
+    }
+  }
+  function startStream(url,rotate=false){
+    destroyStream();const session=streamSession;
+    el.video.disablePictureInPicture=true;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');
+    const unmuteIcon=el.unmute.querySelector('.unmute-icon'),unmuteLabel=el.unmute.querySelector('.unmute-label');
+    if(unmuteIcon)unmuteIcon.textContent='🔊';if(unmuteLabel)unmuteLabel.textContent='Tocca per attivare l’audio';
+    try{el.video.muted=false;el.video.volume=1;}catch(e){}
+    engineQueue=getEngineQueue(url);
+    if(rotate&&engineQueue.length>1)engineQueue.push(engineQueue.shift());
+    engineErrors=[];engineIsReady=false;engineIndex=0;startNextEngine(session,url);
   }
   function updatePlayerStar(){if(!activeChannel)return;const fav=isFav(activeChannel.url);el.star.classList.toggle('active',fav);el.star.textContent=fav?'★':'☆';el.star.setAttribute('aria-label',fav?'Rimuovi dai preferiti':'Aggiungi ai preferiti');}
   function isFullscreen(){

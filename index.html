@@ -304,6 +304,25 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
   #player-video-wrap{inset:0!important;overflow:hidden!important;}
   #video{object-fit:contain!important;object-position:center center!important;transform:none!important;}
 }
+
+/* Correzione definitiva landscape: controlli canale in alto, URL in basso. */
+@media (orientation:landscape){
+  :root{--player-header-top:4px!important;}
+  #player-modal.open #player-top,
+  #player-modal.open .player-back{
+    top:4px!important;
+  }
+  #player-modal.open .player-url-bar{
+    top:auto!important;
+    bottom:calc(66px + env(safe-area-inset-bottom,0px))!important;
+    left:10px!important;
+    right:10px!important;
+    background:rgba(8,10,18,.60)!important;
+    border-color:rgba(255,255,255,.22)!important;
+    backdrop-filter:blur(12px)!important;
+    -webkit-backdrop-filter:blur(12px)!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -848,7 +867,7 @@ html.video-fullscreen #video.fit-zoom{transform:scale(1.12)!important}
     activeChannel=ch;activeUrl=ch.url;
     applyVideoFit('contain',false);
     if(el.streamUrl){el.streamUrl.textContent=ch.url;el.streamUrl.title=ch.url;}
-    clearTimeout(streamUrlTimer);el.urlBar?.classList.add('visible');streamUrlTimer=setTimeout(()=>el.urlBar?.classList.remove('visible'),10000);
+    clearTimeout(streamUrlTimer);el.urlBar?.classList.add('visible');streamUrlTimer=setTimeout(()=>el.urlBar?.classList.remove('visible'),3000);
     el.number.textContent=numberLabel||('CANALE #'+ch.num);
     el.name.textContent=ch.name;
     el.logo.hidden=!ch.logo;

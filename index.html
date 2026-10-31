@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE v19: motore multi-formato con fallback automatico -->
+<!-- TV LIVE v16: layout fluido per Telegram Android, safe-area reale senza offset fissi -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v19</title>
+<title>TV LIVE v16</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
@@ -22,7 +22,7 @@
 /* Navigazione inferiore */
 #bottom-nav{position:absolute;right:0;bottom:var(--nav-inset);left:0;z-index:50;height:var(--nav-h);display:flex;align-items:center;padding:2px 0 0;border-top:1px solid var(--border);background:#0a0b13}#bottom-nav::after{content:"";position:absolute;top:100%;right:0;left:0;height:var(--nav-inset);background:#0a0b13;pointer-events:none}.nav-btn{position:relative;display:flex;flex:1;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;border:0;background:none;color:var(--muted);transition:color .2s}.nav-btn.active{color:var(--text)}.nav-btn svg{width:21px;height:21px;transition:transform .2s}.nav-btn.active svg{transform:scale(1.1);filter:drop-shadow(0 0 6px #8b5cf699)}.nav-btn span:not(.nav-badge){font-size:10px;font-weight:600}.nav-btn.active:after{position:absolute;bottom:6px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--accent);content:"";transform:translateX(-50%)}.nav-badge{position:absolute;top:6px;right:calc(50% - 23px);min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--gradient);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px #8b5cf655}
 /* Lettore: scena video, testata e barra comandi */
-#player-modal{position:fixed;inset:0;z-index:200;width:100vw;height:var(--app-h);overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#171a2a 0%,#05060a 62%);transform:translateY(105%);transition:transform .42s cubic-bezier(.32,.72,0,1);will-change:transform}#player-modal.open{transform:none}#player-video-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}#video{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#000;outline:none;transition:transform .2s;-webkit-user-select:none;user-select:none;color-scheme:dark}#video.fit-fill{object-fit:cover}#video.fit-zoom{object-fit:cover;transform:scale(1.2)}
+#player-modal{position:fixed;inset:0;z-index:200;width:100vw;height:var(--app-h);overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#171a2a 0%,#05060a 62%);transform:translateY(105%);transition:transform .42s cubic-bezier(.32,.72,0,1);will-change:transform}#player-modal.open{transform:translateY(0)}#player-video-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}#video{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#000;outline:none;transition:transform .2s;-webkit-user-select:none;user-select:none;color-scheme:dark}#video.fit-fill{object-fit:cover}#video.fit-zoom{object-fit:cover;transform:scale(1.2)}
 .player-back{position:absolute;top:var(--player-header-top,calc(13px + var(--safe-t)));left:calc(13px + var(--safe-l));z-index:12;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #ffffff20;border-radius:50%;background:#080a12a8;color:white;backdrop-filter:blur(18px);box-shadow:0 5px 20px #0006;transition:.15s}.player-back:active{transform:scale(.9);background:#000d}#player-top{position:absolute;top:var(--player-header-top,calc(13px + var(--safe-t)));right:0;left:0;z-index:5;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 calc(17px + var(--safe-r)) 0 calc(70px + var(--safe-l));background:linear-gradient(180deg,#05060ad9,transparent);opacity:0;pointer-events:none;transition:opacity .25s}#player-modal.show-controls #player-top{opacity:1;pointer-events:auto}.player-logo{width:38px;height:38px;flex:0 0 38px;object-fit:contain;filter:drop-shadow(0 2px 6px #0008)}.player-title-info{flex:1;min-width:0;color:#fff;text-shadow:0 1px 4px #000b}.player-num{margin-bottom:2px;color:#ffffffa8;font-size:10px;font-weight:800;letter-spacing:.1em}.player-name{overflow:hidden;font-size:15px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.player-live{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;padding:6px 9px;border:1px solid #ff4d5c33;border-radius:99px;background:#ff4d5c22;color:#ff6875;font-size:9px;font-weight:900;letter-spacing:.08em}.player-live i{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:pulse 1.4s infinite}.player-action{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;padding:0;border:1px solid #ffffff20;border-radius:50%;background:#ffffff18;color:#fff;font-size:19px;backdrop-filter:blur(16px);transition:.15s}.player-action svg{width:18px;height:18px;display:block}.player-action.active{border-color:#fbbf2455;background:#fbbf2433;color:var(--star)}.player-action:active{transform:scale(.9)}.player-action:disabled{opacity:.45;cursor:not-allowed}#player-status{position:absolute;top:50%;left:50%;z-index:8;display:none;width:max-content;max-width:85%;padding:22px;border:1px solid #ffffff20;border-radius:18px;background:#10131de8;color:#fff;text-align:center;font-size:14px;line-height:1.5;backdrop-filter:blur(18px);transform:translate(-50%,-50%)}#player-status.visible{display:block}#player-status button{margin-top:13px;padding:10px 18px;border:0;border-radius:99px;background:var(--gradient);color:#fff;font-size:13px;font-weight:800}#player-loading{position:absolute;top:50%;left:50%;z-index:7;display:none;transform:translate(-50%,-50%)}#player-loading.visible{display:block}#player-loading .spinner{width:48px;height:48px;border-width:4px}#unmute-overlay{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#05060a80;backdrop-filter:blur(5px);cursor:pointer}#unmute-overlay.visible{display:flex}.unmute-icon{width:76px;height:76px;display:grid;place-items:center;border:1px solid #ffffff50;border-radius:50%;background:var(--gradient);color:white;font-size:30px;box-shadow:0 8px 35px #8b5cf677;animation:pulse 2s infinite}.unmute-label{color:white;font-size:13px;font-weight:700;text-shadow:0 2px 6px #000}
 /* Backup preferiti */
 #backup-modal{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;padding:24px;background:#000b;backdrop-filter:blur(9px)}#backup-modal.visible{display:flex}.modal-card{width:100%;max-width:350px;padding:24px;border:1px solid var(--border);border-radius:21px;background:var(--surface);text-align:center;box-shadow:0 20px 60px #0008}.modal-card h3{margin:0 0 7px;font-size:17px}.modal-sub{margin:0 0 18px;color:var(--muted);font-size:12px;line-height:1.45}.modal-btn{display:block;width:100%;margin-bottom:8px;padding:14px 16px;border:1px solid var(--border);border-radius:13px;background:var(--surface2);font-size:14px;font-weight:650;transition:.15s}.modal-btn:active{transform:scale(.97);background:var(--surface3)}.modal-btn.cancel{margin:0;border-color:transparent;background:transparent;color:var(--muted)}.modal-status{min-height:15px;margin-top:12px;color:var(--green);font-size:11px}
@@ -79,105 +79,6 @@
 #toast{bottom:calc(var(--nav-h) + var(--nav-inset) + 12px)}
 @media(max-width:360px){:root{--nav-h:52px}}
 
-
-/* v17 — header Telegram allineato ai controlli nativi; griglia compatta 4 colonne */
-.in-telegram #app-header{
-  padding:calc(8px + max(var(--safe-t),var(--tg-safe-t)) + var(--tg-content-t)) var(--pad) 7px!important;
-}
-.in-telegram .brand-row{
-  display:flex!important;
-  height:34px;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  margin-top:calc(36px - 8px - max(var(--safe-t),var(--tg-safe-t)) - var(--tg-content-t))!important;
-  margin-bottom:6px!important;
-}
-.in-telegram .brand{gap:7px}
-.in-telegram .brand h1{font-size:17px}
-.in-telegram .brand-dot{width:8px;height:8px}
-.in-telegram .live-indicator{padding:4px 8px;font-size:9px}
-.in-telegram #search{padding:9px 40px 9px 38px;font-size:14px}
-.in-telegram .search-icon{left:12px;width:16px;height:16px}
-
-#channel-grid{
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:6px!important;
-  padding:8px!important;
-}
-.card-thumb{aspect-ratio:1.22/1!important;padding:3px!important}
-.card-logo{max-width:90%!important;max-height:90%!important}
-.card-badge{top:3px!important;left:3px!important;padding:2px 4px!important;font-size:8px!important;border-radius:5px!important}
-.card-star{top:3px!important;right:3px!important;width:22px!important;height:22px!important;font-size:13px!important}
-.card-info{padding:4px 4px 5px!important}
-.card-name{font-size:9px!important;line-height:1.12!important}
-.card-category{font-size:8px!important;line-height:1.1!important}
-.card-reorder{gap:3px!important;margin-top:4px!important}
-.move-fav{padding:3px 2px!important;font-size:8px!important;border-radius:6px!important}
-.skeleton-card{aspect-ratio:1.22/1!important}
-
-/* Il fullscreen richiesto dai controlli nativi del video deve poter usare il top layer. */
-#video:fullscreen,#video:-webkit-full-screen,#video:-webkit-fullscreen{
-  width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;
-  object-fit:contain!important;background:#000!important;
-}
-#player-modal:fullscreen,#player-modal:-webkit-full-screen{
-  width:100vw!important;height:100vh!important;transform:none!important;
-}
-/* Evita un antenato trasformato: alcuni WebView Android bloccano il fullscreen nativo. */
-#player-modal{
-  transform:none!important;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .22s ease,visibility 0s linear .22s!important;
-}
-#player-modal.open{
-  transform:none!important;
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-  transition:opacity .22s ease!important;
-}
-@media(min-width:650px){#channel-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;padding:10px!important}.card-info{padding:6px 7px!important}.card-name{font-size:11px!important}.card-category{font-size:9px!important}}
-@media(min-width:1000px){#channel-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
-@media(max-width:649px){
-  .favorites-tools{margin:6px 8px 0!important;padding:7px 8px!important;gap:5px 7px!important}
-  .favorites-tools label{font-size:10px!important}
-  .favorites-tools select{padding:6px 24px 6px 8px!important;font-size:11px!important}
-  #favorites-hint{display:none!important}
-  .card-thumb{aspect-ratio:1.6/1!important}
-  .card-info{padding:3px 3px 4px!important}
-  .card-name{font-size:8px!important}
-  .card-category{font-size:7px!important}
-  .card-reorder{margin-top:2px!important;gap:2px!important}
-  .move-fav{min-height:16px;padding:2px 1px!important;font-size:7px!important}
-}
-
-
-/* v18 — griglia mobile a 3 colonne, schede e testi più leggibili */
-@media(max-width:649px){
-  #channel-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:8px!important;
-    padding:9px!important;
-  }
-  .card-thumb{aspect-ratio:1.38/1!important;padding:5px!important}
-  .card-logo{max-width:88%!important;max-height:88%!important}
-  .card-badge{top:4px!important;left:4px!important;padding:3px 5px!important;font-size:9px!important;border-radius:6px!important}
-  .card-star{top:4px!important;right:4px!important;width:26px!important;height:26px!important;font-size:15px!important}
-  .card-info{padding:5px 6px 6px!important}
-  .card-name{font-size:12px!important;line-height:1.2!important;font-weight:700!important}
-  .card-category{font-size:10px!important;line-height:1.2!important}
-  .card-reorder{margin-top:4px!important;gap:4px!important}
-  .move-fav{min-height:24px!important;padding:4px 3px!important;font-size:9.5px!important;border-radius:7px!important}
-  .favorites-tools{margin:7px 9px 0!important;padding:8px 9px!important;gap:6px 8px!important}
-  .favorites-tools label{font-size:11px!important}
-  .favorites-tools select{padding:7px 25px 7px 9px!important;font-size:12px!important}
-  #favorites-hint{display:none!important}
-  .skeleton-card{aspect-ratio:1.38/1!important}
-}
-
 </style>
 </head>
 <body>
@@ -201,7 +102,7 @@
   <section id="player-modal" role="dialog" aria-modal="true" aria-label="Lettore TV">
     <button class="player-back" id="player-back" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <div id="player-video-wrap">
-      <video id="video" controls playsinline preload="metadata" disablepictureinpicture></video>
+      <video id="video" controls playsinline webkit-playsinline x5-playsinline preload="metadata"></video>
       <div id="player-loading"><div class="spinner"></div></div><div id="player-status"></div>
       <div id="unmute-overlay"><div class="unmute-icon">🔊</div><div class="unmute-label">Tocca per attivare l'audio</div></div>
     </div>
@@ -209,6 +110,8 @@
       <img id="player-logo" class="player-logo" alt="" hidden>
       <div class="player-title-info"><div class="player-num" id="player-num">CANALE #0</div><div class="player-name" id="player-name">Canale</div></div>
       <div class="player-live"><i></i> LIVE</div>
+      <button class="player-action" id="player-pip" type="button" aria-label="Attiva Picture-in-Picture" title="Mini schermo" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M13 12h6v5h-6z"/></svg></button>
+      <button class="player-action" id="player-fs" type="button" aria-label="Schermo intero" title="Schermo intero" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg></button>
       <button class="player-action" id="player-star" aria-label="Aggiungi ai preferiti">☆</button>
     </div>
 
@@ -225,7 +128,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const tg = window.Telegram?.WebApp || null;
-  const IS_TG = !!(tg && (Boolean(tg.initData) || (tg.platform && tg.platform !== 'unknown') || /Telegram/i.test(navigator.userAgent))) || /Telegram/i.test(navigator.userAgent);
+  const IS_TG = !!(tg?.initData);
   document.documentElement.classList.toggle('in-telegram', IS_TG);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const HAS_CLOUD = !!(IS_TG && tg.CloudStorage);
@@ -245,13 +148,10 @@
   const PLACEHOLDER_LOGO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="#2a2a3d"/><text x="30" y="36" text-anchor="middle" fill="#8b8b9e" font-size="14" font-family="sans-serif" font-weight="bold">TV</text></svg>');
   const el = {
     content:$('content'), grid:$('channel-grid'), loader:$('loading-more'), stats:$('stats-line'), statsActions:$('stats-actions'), favActions:$('favorites-actions'), backupButton:$('backup-btn'), favTools:$('favorites-tools'), favSort:$('favorites-sort'), favHint:$('favorites-hint'), search:$('search'), clear:$('clear-search'), badge:$('fav-badge'),
-    modal:$('player-modal'), video:$('video'), number:$('player-num'), name:$('player-name'), logo:$('player-logo'), star:$('player-star'), back:$('player-back'),
+    modal:$('player-modal'), video:$('video'), number:$('player-num'), name:$('player-name'), logo:$('player-logo'), star:$('player-star'), pip:$('player-pip'), fullscreen:$('player-fs'), back:$('player-back'),
     spinner:$('player-loading'), status:$('player-status'), unmute:$('unmute-overlay'), toast:$('toast'), backup:$('backup-modal'), backupStatus:$('backup-status'), file:$('import-file')
   };
-  let channels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, shakaPlayer = null, mpegtsPlayer = null, activeEngine = '', engineQueue = [], engineIndex = 0, streamSession = 0, engineTimer = null, engineIsReady = false, engineErrors = [], engineVideoListeners = [], activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [];
-  const playerLibraryPromises = new Map();
-  const SHAKA_SRC = 'https://cdn.jsdelivr.net/npm/shaka-player@5.3.3/dist/shaka-player.compiled.js';
-  const MPEGTS_SRC = 'https://cdn.jsdelivr.net/npm/mpegts.js@1.8.2/dist/mpegts.min.js';
+  let channels = [], filtered = [], favorites = new Set(), favoriteOrder = [], favoriteSort = 'custom', mode = 'all', query = '', shown = 0, hls = null, activeChannel = null, activeUrl = null, observer = null, toastTimer, controlsTimer, searchTimer, lastLoadLog = [], initialTgFullscreen = false, playerChangedTgFullscreen = false, tgFullscreenUnsupported = false;
 
   // Viewport e safe area: Telegram gestisce la propria barra superiore;
   // Android/Telegram gestiscono la barra di navigazione nativa.
@@ -288,8 +188,8 @@
   window.visualViewport?.addEventListener('resize',()=>updateHeight());
   if(IS_TG){
     try{
-      tg.ready?.();
-      tg.expand?.();
+      tg.ready();
+      tg.expand();
       tg.setHeaderColor?.('#090a12');
       tg.setBackgroundColor?.('#090a12');
       tg.setBottomBarColor?.('#090a12');
@@ -298,8 +198,15 @@
       tg.onEvent?.('safeAreaChanged',updateTelegramInsets);
       tg.onEvent?.('contentSafeAreaChanged',updateTelegramInsets);
       tg.onEvent?.('fullscreenChanged',()=>{
+        playerChangedTgFullscreen=!!(el.modal.classList.contains('open')&&!!tg.isFullscreen!==initialTgFullscreen);
         updateHeight();
         requestAnimationFrame(()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
+        updateFullscreenButton();
+      });
+      tg.onEvent?.('fullscreenFailed',event=>{
+        tgFullscreenUnsupported=true;
+        updateFullscreenButton();
+        toast(event?.error==='UNSUPPORTED'?'Schermo intero Telegram non supportato su questo dispositivo.':'Telegram non ha potuto attivare lo schermo intero.');
       });
     }catch(e){console.warn('Telegram viewport:',e);}
   }
@@ -343,172 +250,54 @@
   el.grid.addEventListener('click',event=>{const card=event.target.closest('.channel-card');if(!card)return;const ch=card._channel,move=event.target.closest('.move-fav');if(move){event.stopPropagation();moveFavorite(ch.url,Number(move.dataset.direction));return;}if(event.target.closest('.card-star')){const active=toggleFav(ch.url),star=card.querySelector('.card-star');star.classList.toggle('active',active);star.textContent=active?'★':'☆';star.setAttribute('aria-pressed',String(active));haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites'&&!active)applyFilters();else updateStats();return;}openPlayer(ch,card);});
   function setupInfiniteScroll(){if(observer)observer.disconnect();if('IntersectionObserver'in window){observer=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&shown<filtered.length)renderNextBatch();},{root:el.content,rootMargin:'400px'});observer.observe(el.loader);}else el.content.addEventListener('scroll',()=>{if(el.content.scrollTop+el.content.clientHeight>=el.content.scrollHeight-500&&shown<filtered.length)renderNextBatch();},{passive:true});}
 
-  // Motore multi-formato: HLS.js, Shaka (HLS/DASH), mpegts.js (TS/FLV) e video nativo.
-  // Le librerie aggiuntive vengono scaricate solo se il formato ne ha bisogno.
-  function loadPlayerLibrary(src, isReady){
-    try{if(isReady())return Promise.resolve(true);}catch(e){}
-    if(!playerLibraryPromises.has(src)){
-      playerLibraryPromises.set(src,new Promise(resolve=>{
-        const script=document.createElement('script');
-        script.src=src;script.async=true;
-        script.onload=()=>{try{const ok=!!isReady();if(!ok)playerLibraryPromises.delete(src);resolve(ok);}catch(e){playerLibraryPromises.delete(src);resolve(false);}};
-        script.onerror=()=>{playerLibraryPromises.delete(src);resolve(false);};
-        document.head.appendChild(script);
-      }));
-    }
-    return playerLibraryPromises.get(src);
-  }
-  function clearEngineVideoListeners(){
-    engineVideoListeners.forEach(([event,handler])=>el.video.removeEventListener(event,handler));
-    engineVideoListeners=[];
-  }
-  function listenEngineVideo(event,handler){el.video.addEventListener(event,handler);engineVideoListeners.push([event,handler]);}
-  function disposeActiveEngine(){
-    clearTimeout(engineTimer);engineTimer=null;clearEngineVideoListeners();
-    if(hls){try{hls.destroy();}catch(e){}hls=null;}
-    if(shakaPlayer){const player=shakaPlayer;shakaPlayer=null;try{const result=player.destroy();result?.catch?.(()=>{});}catch(e){}}
-    if(mpegtsPlayer){const player=mpegtsPlayer;mpegtsPlayer=null;try{player.pause?.();player.unload?.();player.detachMediaElement?.();player.destroy?.();}catch(e){}}
-    try{el.video.pause();el.video.removeAttribute('src');el.video.load();}catch(e){}
-  }
-  function destroyStream(){streamSession++;activeEngine='';engineQueue=[];engineIndex=0;disposeActiveEngine();resetPlayerFrame();}
-  function playerError(message,url){
-    el.status.innerHTML='';
-    const text=document.createElement('div');text.textContent=message;el.status.append(text);
-    if(engineErrors.length){const details=document.createElement('small');details.style.cssText='display:block;margin-top:9px;color:#aab0c2;font-size:10px;line-height:1.4;word-break:break-word';details.textContent='Motori provati: '+engineErrors.join(' · ');el.status.append(details);}
-    const retry=document.createElement('button');retry.type='button';retry.textContent='Riprova i player';
-    retry.addEventListener('click',()=>startStream(url,true));
-    const external=document.createElement('button');external.type='button';external.textContent='Apri nel browser';
-    external.addEventListener('click',()=>{if(IS_TG&&tg.openLink){try{tg.openLink(url);return;}catch(e){}}try{window.open(url,'_blank','noopener');}catch(e){}});
-    el.status.append(retry,external);el.status.classList.add('visible');
-  }
-  function autoplay(){
-    el.video.muted=false;el.video.volume=1;
-    const attempt=el.video.play();
-    if(attempt?.catch)attempt.catch(()=>{
-      el.video.muted=true;
-      const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');
-      if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';
-      el.spinner.classList.remove('visible');el.unmute.classList.add('visible');
-      const mutedPlay=el.video.play();
-      if(mutedPlay?.catch)mutedPlay.catch(()=>{if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';});
-    });
-  }
-  function streamPath(url){try{return new URL(url,location.href).pathname.toLowerCase();}catch(e){return String(url).toLowerCase().split(/[?#]/)[0];}}
-  function getEngineQueue(url){
-    const path=streamPath(url);
-    if(/\.mpd$/.test(path))return ['shaka','native'];
-    if(/\.(ts|m2ts)$/.test(path))return ['mpegts','native'];
-    if(/\.flv$/.test(path))return ['mpegts','native'];
-    if(/\.(mp4|m4v|mov|webm|mp3|m4a|aac|ogg)$/.test(path))return ['native','mpegts'];
-    if(/\.(m3u8|m3u)$/.test(path))return ['hls','shaka','native'];
-    // URL senza estensione: molti server restituiscono HLS o un flusso TS dinamico.
-    return ['hls','shaka','mpegts','native'];
-  }
-  function engineReady(session,engine){
-    if(session!==streamSession||activeEngine!==engine||engineIsReady)return;
-    engineIsReady=true;clearTimeout(engineTimer);engineTimer=null;el.spinner.classList.remove('visible');el.status.classList.remove('visible');autoplay();
-  }
-  function engineFailed(session,url,engine,reason){
-    if(session!==streamSession||activeEngine!==engine)return;
-    console.warn('TV LIVE player fallback:',engine,reason||'errore');
-    engineErrors.push(engine+': '+String(reason||'errore').slice(0,90));
-    activeEngine='';startNextEngine(session,url);
-  }
-  function startNextEngine(session,url){
-    if(session!==streamSession)return;
-    disposeActiveEngine();
-    if(engineIndex>=engineQueue.length){
-      el.spinner.classList.remove('visible');
-      playerError('Questo flusso non è riproducibile in questa WebView. Può richiedere autorizzazioni, CORS/Referer, DRM o un indirizzo di pagina invece di uno stream diretto.',url);
-      return;
-    }
-    const engine=engineQueue[engineIndex++];activeEngine=engine;engineIsReady=false;
-    const timeout=engine==='mpegts'?16000:13000;
-    engineTimer=setTimeout(()=>engineFailed(session,url,engine,'timeout'),timeout);
-    el.spinner.classList.add('visible');el.status.classList.remove('visible');
-    if(engine==='hls'){
-      if(!window.Hls?.isSupported()){engineFailed(session,url,engine,'HLS.js non supportato');return;}
-      try{
-        const instance=new Hls({enableWorker:true,lowLatencyMode:false,maxBufferLength:40,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:2,fragLoadingMaxRetry:2});
-        hls=instance;
-        instance.on(Hls.Events.MANIFEST_PARSED,()=>engineReady(session,engine));
-        instance.on(Hls.Events.ERROR,(event,data)=>{if(hls!==instance||session!==streamSession||activeEngine!==engine||!data.fatal)return;engineFailed(session,url,engine,(data.details||data.type||'errore HLS'));});
-        instance.loadSource(url);instance.attachMedia(el.video);
-      }catch(error){engineFailed(session,url,engine,error?.message||'avvio HLS fallito');}
-      return;
-    }
-    if(engine==='shaka'){
-      loadPlayerLibrary(SHAKA_SRC,()=>!!window.shaka?.Player).then(async loaded=>{
-        if(session!==streamSession||activeEngine!==engine)return;
-        if(!loaded||!window.shaka?.Player){engineFailed(session,url,engine,'Shaka Player non disponibile');return;}
-        try{
-          window.shaka.polyfill?.installAll?.();
-          if(window.shaka.Player.isBrowserSupported&&!window.shaka.Player.isBrowserSupported()){engineFailed(session,url,engine,'browser non supportato da Shaka');return;}
-          const player=new window.shaka.Player();shakaPlayer=player;
-          player.addEventListener('error',event=>engineFailed(session,url,engine,event?.detail?.code||'errore Shaka'));
-          await player.attach(el.video);
-          if(session!==streamSession||activeEngine!==engine)return;
-          player.configure({streaming:{bufferingGoal:20,rebufferingGoal:2,retryParameters:{maxAttempts:2,baseDelay:500}}});
-          await player.load(url);
-          engineReady(session,engine);
-        }catch(error){engineFailed(session,url,engine,error?.message||'caricamento DASH/HLS fallito');}
-      });
-      return;
-    }
-    if(engine==='mpegts'){
-      loadPlayerLibrary(MPEGTS_SRC,()=>!!window.mpegts?.createPlayer).then(loaded=>{
-        if(session!==streamSession||activeEngine!==engine)return;
-        if(!loaded||!window.mpegts?.createPlayer||!window.mpegts.isSupported?.()){engineFailed(session,url,engine,'MPEG-TS non supportato');return;}
-        try{
-          const path=streamPath(url),type=path.endsWith('.flv')?'flv':path.endsWith('.m2ts')?'m2ts':'mpegts';
-          const player=window.mpegts.createPlayer({type,isLive:true,url},{enableWorker:true,lazyLoad:false,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:2,liveBufferLatencyMinRemain:0.5});
-          mpegtsPlayer=player;
-          player.on(window.mpegts.Events.ERROR,(kind,detail,info)=>engineFailed(session,url,engine,detail||kind||'errore MPEG-TS'));
-          listenEngineVideo('loadedmetadata',()=>engineReady(session,engine));
-          listenEngineVideo('canplay',()=>engineReady(session,engine));
-          player.attachMediaElement(el.video);player.load();
-          const playResult=player.play();playResult?.catch?.(error=>console.warn('MPEG-TS play:',error));
-        }catch(error){engineFailed(session,url,engine,error?.message||'avvio MPEG-TS fallito');}
-      });
-      return;
-    }
-    // Ultimo tentativo: decodifica nativa del browser (MP4/HLS nativo e altri formati ammessi).
-    if(engine==='native'){
-      listenEngineVideo('loadedmetadata',()=>engineReady(session,engine));
-      listenEngineVideo('canplay',()=>engineReady(session,engine));
-      listenEngineVideo('error',()=>engineFailed(session,url,engine,el.video.error?.message||'errore video nativo'));
-      try{el.video.src=url;el.video.load();}catch(error){engineFailed(session,url,engine,error?.message||'avvio video nativo fallito');}
-    }
-  }
-  function startStream(url,rotate=false){
-    destroyStream();const session=streamSession;
-    el.video.disablePictureInPicture=true;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');
-    const unmuteIcon=el.unmute.querySelector('.unmute-icon'),unmuteLabel=el.unmute.querySelector('.unmute-label');
-    if(unmuteIcon)unmuteIcon.textContent='🔊';if(unmuteLabel)unmuteLabel.textContent='Tocca per attivare l’audio';
-    try{el.video.muted=false;el.video.volume=1;}catch(e){}
-    engineQueue=getEngineQueue(url);
-    if(rotate&&engineQueue.length>1)engineQueue.push(engineQueue.shift());
-    engineErrors=[];engineIsReady=false;engineIndex=0;startNextEngine(session,url);
+  // Lettore HLS con fallback nativo per Safari/iOS.
+  function destroyStream(){if(hls){try{hls.destroy();}catch(e){}hls=null;}try{el.video.pause();el.video.removeAttribute('src');el.video.load();}catch(e){}resetPlayerFrame();}
+  function playerError(message,url){el.status.innerHTML='';const text=document.createElement('div');text.textContent=message;const button=document.createElement('button');button.id='open-ext';button.type='button';button.textContent='Apri nel browser';button.addEventListener('click',()=>{if(IS_TG&&tg.openLink){try{tg.openLink(url);return;}catch(e){}}try{window.open(url,'_blank','noopener');}catch(e){}});el.status.append(text,button);el.status.classList.add('visible');}
+  function autoplay(){el.video.muted=false;el.video.volume=1;const attempt=el.video.play();if(attempt?.catch)attempt.catch(()=>{el.video.muted=true;const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';el.spinner.classList.remove('visible');el.unmute.classList.add('visible');const mutedPlay=el.video.play();if(mutedPlay?.catch)mutedPlay.catch(()=>{if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';});});}
+  function startStream(url){destroyStream();el.video.disablePictureInPicture=false;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');const unmuteIcon=el.unmute.querySelector('.unmute-icon'),unmuteLabel=el.unmute.querySelector('.unmute-label');if(unmuteIcon)unmuteIcon.textContent='🔊';if(unmuteLabel)unmuteLabel.textContent='Tocca per attivare l’audio';try{el.video.muted=false;el.video.volume=1;}catch(e){}
+    if(window.Hls?.isSupported()){
+      try{const instance=new Hls({enableWorker:true,lowLatencyMode:true,maxBufferLength:30});hls=instance;instance.loadSource(url);instance.attachMedia(el.video);instance.on(Hls.Events.MANIFEST_PARSED,()=>{if(hls!==instance)return;el.spinner.classList.remove('visible');autoplay();});instance.on(Hls.Events.ERROR,(event,data)=>{if(hls!==instance||!data.fatal)return;if(data.type===Hls.ErrorTypes.NETWORK_ERROR){playerError('Errore di rete. Riprovo…',url);setTimeout(()=>{if(hls===instance)instance.startLoad();},1500);}else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){playerError('Errore media. Riprovo…',url);setTimeout(()=>{if(hls===instance)instance.recoverMediaError();},1500);}else{el.spinner.classList.remove('visible');playerError('Canale non disponibile.',url);instance.destroy();hls=null;}});}
+      catch(error){console.warn('Hls init:',error);el.spinner.classList.remove('visible');playerError('Errore riproduttore.',url);}
+    }else if(el.video.canPlayType('application/vnd.apple.mpegurl')){el.video.addEventListener('loadeddata',()=>{el.spinner.classList.remove('visible');autoplay();},{once:true});el.video.addEventListener('error',()=>{el.spinner.classList.remove('visible');playerError('Canale non disponibile.',url);},{once:true});el.video.src=url;}
+    else{el.spinner.classList.remove('visible');playerError('HLS non supportato.',url);}
   }
   function updatePlayerStar(){if(!activeChannel)return;const fav=isFav(activeChannel.url);el.star.classList.toggle('active',fav);el.star.textContent=fav?'★':'☆';el.star.setAttribute('aria-label',fav?'Rimuovi dai preferiti':'Aggiungi ai preferiti');}
-  function isFullscreen(){
-    return document.fullscreenElement===el.video || document.fullscreenElement===el.modal ||
-      document.webkitFullscreenElement===el.video || document.webkitFullscreenElement===el.modal ||
-      !!el.video.webkitDisplayingFullscreen;
+  function isFullscreen(){return !!(IS_TG&&tg?.isFullscreen)||document.fullscreenElement===el.video||document.fullscreenElement===el.modal||document.webkitFullscreenElement===el.video||document.webkitFullscreenElement===el.modal||!!el.video.webkitDisplayingFullscreen;}
+  function updateFullscreenButton(){const active=isFullscreen();el.fullscreen?.classList.toggle('active',active);el.fullscreen?.setAttribute('aria-pressed',String(active));el.fullscreen?.setAttribute('aria-label',active?'Esci dallo schermo intero':'Schermo intero');el.fullscreen?.setAttribute('title',active?'Esci dallo schermo intero':'Schermo intero');}
+  function isPiP(){return document.pictureInPictureElement===el.video||el.video.webkitPresentationMode==='picture-in-picture';}
+  function updatePiPButton(){const active=isPiP();el.pip?.classList.toggle('active',active);el.pip?.setAttribute('aria-pressed',String(active));el.pip?.setAttribute('aria-label',active?'Esci dal mini schermo':'Attiva Picture-in-Picture');el.pip?.setAttribute('title',active?'Esci dal mini schermo':'Mini schermo');}
+  async function toggleFullscreen(){
+    // In Telegram va usata prima l'API ufficiale della Mini App: espande
+    // l'intero player oltre le barre superiore e inferiore di Telegram.
+    if(IS_TG&&!tgFullscreenUnsupported&&typeof tg?.requestFullscreen==='function'&&typeof tg?.exitFullscreen==='function'){
+      try{if(tg.isFullscreen)tg.exitFullscreen();else tg.requestFullscreen();return;}
+      catch(error){console.warn('Telegram fullscreen:',error);tgFullscreenUnsupported=true;}
+    }
+    try{
+      if(document.fullscreenElement===el.video||document.fullscreenElement===el.modal||document.webkitFullscreenElement){
+        if(document.exitFullscreen)await document.exitFullscreen();
+        else if(el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();
+      }else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen){el.video.webkitExitFullscreen();}
+      else if(el.video.requestFullscreen){try{await el.video.requestFullscreen({navigationUI:'hide'});}catch(firstError){await el.video.requestFullscreen();}}
+      else if(el.video.webkitEnterFullscreen){el.video.webkitEnterFullscreen();}
+      else if(el.modal.requestFullscreen){try{await el.modal.requestFullscreen({navigationUI:'hide'});}catch(firstError){await el.modal.requestFullscreen();}}
+      else{toast('Schermo intero non supportato da questo browser.');}
+    }catch(error){console.warn('Fullscreen:',error);toast('Schermo intero non disponibile in questo ambiente.');}
+    updateFullscreenButton();
+  }
+  async function togglePiP(){
+    try{
+      if(document.pictureInPictureElement===el.video){await document.exitPictureInPicture();}
+      else if(document.pictureInPictureEnabled&&el.video.requestPictureInPicture){await el.video.requestPictureInPicture();}
+      else if(el.video.webkitSupportsPresentationMode?.('picture-in-picture')){el.video.webkitSetPresentationMode('picture-in-picture');}
+      else{toast('Mini schermo non supportato da questo browser o da Telegram.');return;}
+    }catch(error){console.warn('Picture-in-Picture:',error);toast('Mini schermo non disponibile. Prova ad aprire TV LIVE nel browser esterno.');}
+    updatePiPButton();
   }
   // Ridimensiona l'elemento video sul fotogramma reale: i controlli nativi
   // restano così vicini all'immagine invece che al bordo dello schermo.
-  function nativeVideoFullscreen(){
-    return document.fullscreenElement===el.video || document.webkitFullscreenElement===el.video || !!el.video.webkitDisplayingFullscreen;
-  }
   function updatePlayerFrame(){
     const video=el.video,wrap=video.parentElement,w=video.videoWidth,h=video.videoHeight;
-    if(nativeVideoFullscreen()){
-      video.style.width='100vw';video.style.height='100vh';
-      document.documentElement.classList.add('native-video-fullscreen');
-      return;
-    }
-    document.documentElement.classList.remove('native-video-fullscreen');
     if(!w||!h||!wrap)return;
     const area=wrap.getBoundingClientRect();
     if(!area.width||!area.height)return;
@@ -516,7 +305,7 @@
     video.style.width=Math.round(w*scale)+'px';
     video.style.height=Math.round(h*scale)+'px';
     requestAnimationFrame(()=>{
-      if(!el.modal.classList.contains('open')||nativeVideoFullscreen())return;
+      if(!el.modal.classList.contains('open'))return;
       const frame=video.getBoundingClientRect();
       const root=getComputedStyle(document.documentElement);
       const safe=Math.max(parseFloat(root.getPropertyValue('--safe-t'))||0,parseFloat(root.getPropertyValue('--tg-safe-t'))||0);
@@ -525,30 +314,29 @@
       document.documentElement.style.setProperty('--player-header-top',Math.round(top)+'px');
     });
   }
-  function resetPlayerFrame(){el.video.style.width='100%';el.video.style.height='100%';document.documentElement.style.removeProperty('--player-header-top');document.documentElement.classList.remove('native-video-fullscreen');}
-  function handleNativeFullscreenChange(){
-    if(nativeVideoFullscreen()){
-      el.video.style.width='100vw';el.video.style.height='100vh';
-      document.documentElement.classList.add('native-video-fullscreen');
-    }else if(el.modal.classList.contains('open')) updatePlayerFrame();
-  }
+  function resetPlayerFrame(){el.video.style.width='100%';el.video.style.height='100%';document.documentElement.style.removeProperty('--player-header-top');}
   el.video.addEventListener('loadedmetadata',updatePlayerFrame);
   el.video.addEventListener('playing',updatePlayerFrame);
-  document.addEventListener('fullscreenchange',handleNativeFullscreenChange);
-  document.addEventListener('webkitfullscreenchange',handleNativeFullscreenChange);
-  el.video.addEventListener('webkitbeginfullscreen',handleNativeFullscreenChange);
-  el.video.addEventListener('webkitendfullscreen',handleNativeFullscreenChange);
   window.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
   window.visualViewport?.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
   function showPlayerControls(){el.modal.classList.add('show-controls');clearTimeout(controlsTimer);controlsTimer=setTimeout(()=>{if(!el.video.paused)el.modal.classList.remove('show-controls');},3500);}
-  function openPlayer(ch,card){haptic();activeChannel=ch;activeUrl=ch.url;el.number.textContent='CANALE #'+ch.num;el.name.textContent=ch.name;el.logo.hidden=!ch.logo;if(ch.logo){el.logo.src=ch.logo;el.logo.onerror=()=>{el.logo.hidden=true;};}updatePlayerStar();document.querySelectorAll('.channel-card.active').forEach(item=>item.classList.remove('active'));card?.classList.add('active');el.modal.classList.add('open');document.body.style.overflow='hidden';try{tg?.BackButton?.show();}catch(e){}try{history.pushState({modal:'player'},'');}catch(e){}startStream(ch.url);showPlayerControls();}
-  function closePlayer(fromHistory=false){el.modal.classList.remove('open','show-controls');document.body.style.overflow='';try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}catch(e){}destroyStream();activeChannel=null;activeUrl=null;el.unmute.classList.remove('visible');try{tg?.BackButton?.hide();}catch(e){}if(!fromHistory&&history.state?.modal==='player'){try{history.back();}catch(e){}}}
+  function openPlayer(ch,card){haptic();initialTgFullscreen=!!(IS_TG&&tg?.isFullscreen);playerChangedTgFullscreen=false;activeChannel=ch;activeUrl=ch.url;el.number.textContent='CANALE #'+ch.num;el.name.textContent=ch.name;el.logo.hidden=!ch.logo;if(ch.logo){el.logo.src=ch.logo;el.logo.onerror=()=>{el.logo.hidden=true;};}updatePlayerStar();document.querySelectorAll('.channel-card.active').forEach(item=>item.classList.remove('active'));card?.classList.add('active');el.modal.classList.add('open');document.body.style.overflow='hidden';updateFullscreenButton();updatePiPButton();try{tg?.BackButton?.show();}catch(e){}try{history.pushState({modal:'player'},'');}catch(e){}startStream(ch.url);showPlayerControls();}
+  function closePlayer(fromHistory=false){el.modal.classList.remove('open','show-controls');document.body.style.overflow='';try{if(document.pictureInPictureElement===el.video)document.exitPictureInPicture().catch(()=>{});else if(el.video.webkitPresentationMode==='picture-in-picture')el.video.webkitSetPresentationMode('inline');}catch(e){}destroyStream();activeChannel=null;activeUrl=null;el.unmute.classList.remove('visible');try{tg?.BackButton?.hide();}catch(e){}try{if(IS_TG&&playerChangedTgFullscreen&&typeof tg?.exitFullscreen==='function'&&typeof tg?.requestFullscreen==='function'){if(initialTgFullscreen&&!tg.isFullscreen)tg.requestFullscreen();else if(!initialTgFullscreen&&tg.isFullscreen)tg.exitFullscreen();}if(document.fullscreenElement||document.webkitFullscreenElement){if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}catch(e){}updateFullscreenButton();updatePiPButton();if(!fromHistory&&history.state?.modal==='player'){try{history.back();}catch(e){}}}
   el.back.addEventListener('click',()=>closePlayer());
+  el.fullscreen.addEventListener('click',event=>{event.stopPropagation();toggleFullscreen();});
+  el.pip.addEventListener('click',event=>{event.stopPropagation();togglePiP();});
+  document.addEventListener('fullscreenchange',updateFullscreenButton);
+  document.addEventListener('webkitfullscreenchange',updateFullscreenButton);
+  el.video.addEventListener('webkitbeginfullscreen',updateFullscreenButton);
+  el.video.addEventListener('webkitendfullscreen',updateFullscreenButton);
+  el.video.addEventListener('enterpictureinpicture',updatePiPButton);
+  el.video.addEventListener('leavepictureinpicture',updatePiPButton);
+  el.video.addEventListener('webkitpresentationmodechanged',updatePiPButton);
   el.star.addEventListener('click',()=>{if(!activeChannel)return;const active=toggleFav(activeChannel.url);updatePlayerStar();haptic();toast(active?'★ Aggiunto ai preferiti':'Rimosso dai preferiti',active);updateFavBadge();if(mode==='favorites')applyFilters();});
   el.unmute.addEventListener('click',async()=>{const icon=el.unmute.querySelector('.unmute-icon'),label=el.unmute.querySelector('.unmute-label');try{el.video.muted=false;if(el.video.volume===0)el.video.volume=1;if(el.video.paused)await el.video.play();el.unmute.classList.remove('visible');if(icon)icon.textContent='🔊';if(label)label.textContent='Tocca per attivare l’audio';haptic();}catch(error){el.video.muted=true;if(icon)icon.textContent='▶';if(label)label.textContent='Tocca per riprodurre';el.unmute.classList.add('visible');}});
   el.video.addEventListener('playing',()=>el.spinner.classList.remove('visible'));
   el.video.addEventListener('click',()=>{el.modal.classList.contains('show-controls')?el.modal.classList.remove('show-controls'):showPlayerControls();});
-  let touchY=0,touchAt=0;el.video.addEventListener('touchstart',event=>{touchY=event.touches[0].clientY;touchAt=Date.now();showPlayerControls();},{passive:true});el.video.addEventListener('touchend',event=>{if(isFullscreen())return;const dy=event.changedTouches[0].clientY-touchY;if(dy>120&&Date.now()-touchAt<500)closePlayer();},{passive:true});
+  let touchY=0,touchAt=0;el.video.addEventListener('touchstart',event=>{touchY=event.touches[0].clientY;touchAt=Date.now();showPlayerControls();},{passive:true});el.video.addEventListener('touchend',event=>{if(isFullscreen()||isPiP())return;const dy=event.changedTouches[0].clientY-touchY;if(dy>120&&Date.now()-touchAt<500)closePlayer();},{passive:true});
 
 
 

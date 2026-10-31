@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="it">
-<!-- TV LIVE v19: motore multi-formato con fallback automatico -->
+<!-- TV LIVE v20 DEV: layout verticale ottimizzato e fullscreen nativo -->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#090a12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>TV LIVE v19</title>
+<title>TV LIVE v20 DEV</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#090a12;--surface:#151722;--surface2:#202333;--surface3:#2b3044;--text:#f5f6fb;--muted:#969caf;--accent:#8b5cf6;--pink:#ec4899;--gradient:linear-gradient(135deg,var(--accent),var(--pink));--border:#ffffff12;--star:#fbbf24;--red:#ff4d5c;--green:#10b981;--safe-t:env(safe-area-inset-top,0px);--tg-safe-t:0px;--tg-content-t:0px;--safe-b:env(safe-area-inset-bottom,0px);--tg-safe-b:0px;--tg-content-b:0px;--android-nav-fallback:0px;--nav-inset:max(var(--safe-b),var(--tg-safe-b));--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);--nav-h:56px;--app-h:100dvh;--pad:clamp(12px,4vw,18px);--gap:clamp(8px,2.5vw,12px);--radius:17px}
@@ -178,6 +178,53 @@
   .skeleton-card{aspect-ratio:1.38/1!important}
 }
 
+
+/* v20 DEV — intestazione Telegram in overlay, senza consumare altezza della griglia */
+:root{--tg-title-zone:48px}
+#app-header{position:relative;min-width:0}
+.in-telegram #app-header{
+  padding-top:calc(max(var(--safe-t),var(--tg-safe-t),var(--tg-content-t),var(--tg-title-zone)) + 5px)!important;
+  padding-bottom:6px!important;
+}
+.in-telegram .brand-row{
+  position:absolute!important;display:flex!important;top:max(0px,calc((max(var(--safe-t),var(--tg-safe-t),var(--tg-content-t),var(--tg-title-zone)) - 34px)/2))!important;
+  left:50%!important;transform:translateX(-50%)!important;width:max-content;max-width:calc(100% - 112px);height:34px!important;
+  align-items:center;justify-content:center;gap:8px;margin:0!important;white-space:nowrap;z-index:12;
+}
+.in-telegram .brand{gap:7px}
+.in-telegram .brand h1{font-size:16px;letter-spacing:-.035em}
+.in-telegram .brand-dot{width:7px;height:7px}
+.in-telegram .live-indicator{gap:5px;padding:4px 7px;font-size:8px;letter-spacing:.05em}
+.in-telegram .live-dot{width:5px;height:5px}
+.in-telegram #search{padding:9px 40px 9px 38px;font-size:14px}
+.in-telegram .search-icon{left:12px;width:16px;height:16px}
+#content{min-height:0;padding-bottom:4px!important}
+.stats-row{padding-top:8px}
+#channel-grid{padding-bottom:8px}
+#bottom-nav{position:relative!important;inset:auto!important;height:calc(var(--nav-h) + var(--nav-inset))!important;min-height:0;overflow:visible;background:#0a0b13}
+#bottom-nav::after{top:auto!important;bottom:0!important;height:var(--nav-inset)!important;background:#0a0b13}
+.app-version{position:absolute;right:6px;bottom:calc(var(--nav-inset) + 2px);z-index:75;pointer-events:none;color:#73798c;font-size:8px;font-weight:700;letter-spacing:.04em;line-height:1;opacity:.72}
+
+/* Fullscreen nativo: il video è l'elemento fullscreen, non il contenitore dell'app. */
+#player-modal{transform:none!important;will-change:auto!important;contain:none!important}
+#player-modal.open{transform:none!important}
+#player-video-wrap{isolation:auto}
+#video{display:block;max-width:100%;max-height:100%;-webkit-appearance:media-controls;appearance:auto}
+#video:fullscreen,#video:-webkit-full-screen,#video:-webkit-fullscreen{
+  position:fixed!important;inset:0!important;z-index:2147483647!important;
+  width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;
+  margin:0!important;object-fit:contain!important;background:#000!important;transform:none!important;
+}
+#player-modal:fullscreen,#player-modal:-webkit-full-screen{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;overflow:visible!important;
+}
+html.video-fullscreen,html.video-fullscreen body{overflow:hidden!important;background:#000!important}
+html.video-fullscreen #player-modal{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;overflow:visible!important;z-index:2147483647!important}
+html.video-fullscreen #player-video-wrap{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;overflow:visible!important}
+html.video-fullscreen #video{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;object-fit:contain!important;background:#000!important}
+@media(max-width:360px){.in-telegram #app-header{padding-top:calc(max(var(--safe-t),var(--tg-safe-t),var(--tg-content-t),var(--tg-title-zone)) + 4px)!important}.app-version{font-size:7px;right:4px}}
+@media(prefers-reduced-motion:reduce){.in-telegram .brand-row{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -197,11 +244,12 @@
   <nav id="bottom-nav" role="tablist">
     <button class="nav-btn active" data-mode="all" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Canali</span></button>
     <button class="nav-btn" data-mode="favorites" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.26 6.9 1-5 4.87 1.18 6.87L12 17.77l-6.18 3.25L7 14.13 2 9.27l6.9-1L12 2Z"/></svg><span>Preferiti</span><span class="nav-badge hidden" id="fav-badge">0</span></button>
+    <span id="app-version" class="app-version" aria-label="Versione sviluppo 20">DEV v20</span>
   </nav>
   <section id="player-modal" role="dialog" aria-modal="true" aria-label="Lettore TV">
     <button class="player-back" id="player-back" aria-label="Indietro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <div id="player-video-wrap">
-      <video id="video" controls playsinline preload="metadata" disablepictureinpicture></video>
+      <video id="video" controls="controls" playsinline="playsinline" webkit-playsinline="true" preload="metadata" disablepictureinpicture></video>
       <div id="player-loading"><div class="spinner"></div></div><div id="player-status"></div>
       <div id="unmute-overlay"><div class="unmute-icon">🔊</div><div class="unmute-label">Tocca per attivare l'audio</div></div>
     </div>
@@ -263,6 +311,8 @@
     const contentSafe=tg?.contentSafeAreaInset||{};
     root.style.setProperty('--tg-safe-t',px(safe.top));
     root.style.setProperty('--tg-content-t',px(contentSafe.top));
+    const titleZone=IS_TG?Math.max(44,Number(contentSafe.top)||0):0;
+    root.style.setProperty('--tg-title-zone',px(titleZone));
     const cssSafeBottom=parseFloat(getComputedStyle(root).getPropertyValue('--safe-b'))||0;
     const safeBottom=Math.max(cssSafeBottom,Number(safe.bottom)||0,IS_ANDROID?0:Number(contentSafe.bottom)||0);
     root.style.setProperty('--tg-safe-b',px(safeBottom));
@@ -482,7 +532,7 @@
   }
   function startStream(url,rotate=false){
     destroyStream();const session=streamSession;
-    el.video.disablePictureInPicture=true;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');
+    el.video.controls=true;el.video.disablePictureInPicture=true;el.spinner.classList.add('visible');el.status.classList.remove('visible');el.unmute.classList.remove('visible');
     const unmuteIcon=el.unmute.querySelector('.unmute-icon'),unmuteLabel=el.unmute.querySelector('.unmute-label');
     if(unmuteIcon)unmuteIcon.textContent='🔊';if(unmuteLabel)unmuteLabel.textContent='Tocca per attivare l’audio';
     try{el.video.muted=false;el.video.volume=1;}catch(e){}
@@ -491,55 +541,92 @@
     engineErrors=[];engineIsReady=false;engineIndex=0;startNextEngine(session,url);
   }
   function updatePlayerStar(){if(!activeChannel)return;const fav=isFav(activeChannel.url);el.star.classList.toggle('active',fav);el.star.textContent=fav?'★':'☆';el.star.setAttribute('aria-label',fav?'Rimuovi dai preferiti':'Aggiungi ai preferiti');}
-  function isFullscreen(){
-    return document.fullscreenElement===el.video || document.fullscreenElement===el.modal ||
-      document.webkitFullscreenElement===el.video || document.webkitFullscreenElement===el.modal ||
-      !!el.video.webkitDisplayingFullscreen;
-  }
-  // Ridimensiona l'elemento video sul fotogramma reale: i controlli nativi
-  // restano così vicini all'immagine invece che al bordo dello schermo.
   function nativeVideoFullscreen(){
-    return document.fullscreenElement===el.video || document.webkitFullscreenElement===el.video || !!el.video.webkitDisplayingFullscreen;
+    const video=el.video;
+    return document.fullscreenElement===video || document.webkitFullscreenElement===video ||
+      !!video.webkitDisplayingFullscreen || !!document.webkitIsFullScreen && document.webkitFullscreenElement===video;
   }
+  function isFullscreen(){
+    return nativeVideoFullscreen() || document.fullscreenElement===el.modal || document.webkitFullscreenElement===el.modal;
+  }
+  function syncNativeFullscreen(){
+    const active=nativeVideoFullscreen();
+    document.documentElement.classList.toggle('video-fullscreen',active);
+    if(active){
+      el.video.style.width='100vw';el.video.style.height='100vh';
+      el.video.style.maxWidth='none';el.video.style.maxHeight='none';
+    }else{
+      el.video.style.removeProperty('max-width');el.video.style.removeProperty('max-height');
+      if(el.modal.classList.contains('open'))updatePlayerFrame();
+      else resetPlayerFrame();
+    }
+  }
+  // Imposta il video inline sulle proporzioni reali, ma lascia che il browser
+  // porti l'elemento <video> nel top layer quando si usa il fullscreen integrato.
   function updatePlayerFrame(){
     const video=el.video,wrap=video.parentElement,w=video.videoWidth,h=video.videoHeight;
     if(nativeVideoFullscreen()){
-      video.style.width='100vw';video.style.height='100vh';
-      document.documentElement.classList.add('native-video-fullscreen');
-      return;
+      document.documentElement.classList.add('video-fullscreen');
+      video.style.width='100vw';video.style.height='100vh';return;
     }
-    document.documentElement.classList.remove('native-video-fullscreen');
+    document.documentElement.classList.remove('video-fullscreen');
     if(!w||!h||!wrap)return;
-    const area=wrap.getBoundingClientRect();
-    if(!area.width||!area.height)return;
+    const area=wrap.getBoundingClientRect();if(!area.width||!area.height)return;
     const scale=Math.min(area.width/w,area.height/h);
-    video.style.width=Math.round(w*scale)+'px';
-    video.style.height=Math.round(h*scale)+'px';
+    video.style.width=Math.round(w*scale)+'px';video.style.height=Math.round(h*scale)+'px';
     requestAnimationFrame(()=>{
       if(!el.modal.classList.contains('open')||nativeVideoFullscreen())return;
-      const frame=video.getBoundingClientRect();
-      const root=getComputedStyle(document.documentElement);
+      const frame=video.getBoundingClientRect(),root=getComputedStyle(document.documentElement);
       const safe=Math.max(parseFloat(root.getPropertyValue('--safe-t'))||0,parseFloat(root.getPropertyValue('--tg-safe-t'))||0);
-      const topFloor=Math.max(safe+8,IS_TG?96:safe+8);
-      const top=Math.max(topFloor,frame.top-58);
-      document.documentElement.style.setProperty('--player-header-top',Math.round(top)+'px');
+      const topFloor=Math.max(safe+8,IS_TG?72:safe+8);
+      document.documentElement.style.setProperty('--player-header-top',Math.round(Math.max(topFloor,frame.top-58))+'px');
     });
   }
-  function resetPlayerFrame(){el.video.style.width='100%';el.video.style.height='100%';document.documentElement.style.removeProperty('--player-header-top');document.documentElement.classList.remove('native-video-fullscreen');}
-  function handleNativeFullscreenChange(){
-    if(nativeVideoFullscreen()){
-      el.video.style.width='100vw';el.video.style.height='100vh';
-      document.documentElement.classList.add('native-video-fullscreen');
-    }else if(el.modal.classList.contains('open')) updatePlayerFrame();
+  function resetPlayerFrame(){
+    el.video.style.width='100%';el.video.style.height='100%';
+    el.video.style.removeProperty('position');el.video.style.removeProperty('inset');
+    document.documentElement.style.removeProperty('--player-header-top');
+    document.documentElement.classList.remove('video-fullscreen');
   }
+  function handleNativeFullscreenChange(){syncNativeFullscreen();}
+  async function requestNativeVideoFullscreen(){
+    if(nativeVideoFullscreen())return;
+    try{
+      if(typeof el.video.webkitEnterFullscreen==='function' && IS_IOS){el.video.webkitEnterFullscreen();return;}
+      if(typeof el.video.requestFullscreen==='function'){
+        const result=el.video.requestFullscreen({navigationUI:'hide'});
+        if(result?.catch)result.catch(error=>console.warn('Fullscreen video:',error));
+        return;
+      }
+      if(typeof el.video.webkitRequestFullscreen==='function'){el.video.webkitRequestFullscreen();return;}
+      // Ultimo fallback per i client Telegram senza Fullscreen API sul video.
+      if(IS_TG&&typeof tg?.requestFullscreen==='function')tg.requestFullscreen();
+    }catch(error){
+      console.warn('Fullscreen non disponibile:',error);
+      try{if(IS_TG&&typeof tg?.requestFullscreen==='function')tg.requestFullscreen();}catch(e){}
+    }
+  }
+  el.video.controls=true;
   el.video.addEventListener('loadedmetadata',updatePlayerFrame);
   el.video.addEventListener('playing',updatePlayerFrame);
   document.addEventListener('fullscreenchange',handleNativeFullscreenChange);
   document.addEventListener('webkitfullscreenchange',handleNativeFullscreenChange);
+  document.addEventListener('fullscreenerror',()=>console.warn('Richiesta fullscreen rifiutata dal browser'));
+  document.addEventListener('webkitfullscreenerror',()=>console.warn('Richiesta fullscreen rifiutata dal browser'));
   el.video.addEventListener('webkitbeginfullscreen',handleNativeFullscreenChange);
   el.video.addEventListener('webkitendfullscreen',handleNativeFullscreenChange);
   window.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
   window.visualViewport?.addEventListener('resize',()=>{if(el.modal.classList.contains('open'))updatePlayerFrame();});
+  // Doppio tocco sul video: fallback gestuale se i controlli nativi della WebView
+  // non mostrano o non attivano il comando fullscreen.
+  let lastVideoTap=0,lastVideoTapX=0,lastVideoTapY=0;
+  el.video.addEventListener('touchend',event=>{
+    const touch=event.changedTouches?.[0];if(!touch)return;
+    const now=Date.now(),dx=touch.clientX-lastVideoTapX,dy=touch.clientY-lastVideoTapY;
+    if(now-lastVideoTap<330&&Math.hypot(dx,dy)<34){requestNativeVideoFullscreen();lastVideoTap=0;}
+    else{lastVideoTap=now;lastVideoTapX=touch.clientX;lastVideoTapY=touch.clientY;}
+  },{passive:true});
+  el.video.addEventListener('dblclick',requestNativeVideoFullscreen);
   function showPlayerControls(){el.modal.classList.add('show-controls');clearTimeout(controlsTimer);controlsTimer=setTimeout(()=>{if(!el.video.paused)el.modal.classList.remove('show-controls');},3500);}
   function openPlayer(ch,card){haptic();activeChannel=ch;activeUrl=ch.url;el.number.textContent='CANALE #'+ch.num;el.name.textContent=ch.name;el.logo.hidden=!ch.logo;if(ch.logo){el.logo.src=ch.logo;el.logo.onerror=()=>{el.logo.hidden=true;};}updatePlayerStar();document.querySelectorAll('.channel-card.active').forEach(item=>item.classList.remove('active'));card?.classList.add('active');el.modal.classList.add('open');document.body.style.overflow='hidden';try{tg?.BackButton?.show();}catch(e){}try{history.pushState({modal:'player'},'');}catch(e){}startStream(ch.url);showPlayerControls();}
   function closePlayer(fromHistory=false){el.modal.classList.remove('open','show-controls');document.body.style.overflow='';try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(el.video.webkitDisplayingFullscreen&&el.video.webkitExitFullscreen)el.video.webkitExitFullscreen();}catch(e){}destroyStream();activeChannel=null;activeUrl=null;el.unmute.classList.remove('visible');try{tg?.BackButton?.hide();}catch(e){}if(!fromHistory&&history.state?.modal==='player'){try{history.back();}catch(e){}}}
